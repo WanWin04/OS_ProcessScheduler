@@ -13,7 +13,7 @@
 class InputHandler {
 public:
     int algorithmID;
-    int timeQuantum;
+    int timeQuantum; // time quantum for Round Robin algorithm
     std::vector<Process*> processes;
 
     InputHandler();

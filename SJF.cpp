@@ -6,12 +6,14 @@ SJF::SJF(InputHandler &input) : Scheduler(input.processes) {}
 
 void SJF::execute() {
     int currentTime = 0;
+    std::vector<Process*> tempProcesses = _processes;
 
-    while (true) {
+    while ( true ) {
         // push process into queue
-        while (!_processes.empty() && _processes.front()->arrivalTime == currentTime) {
-            _readyQueue.push(_processes.front());
-            _processes.erase(_processes.begin());
+        while (!tempProcesses.empty() && tempProcesses.front()->arrivalTime == currentTime) {
+            _readyQueue.push(tempProcesses.front());
+            tempProcesses.front()->isWaiting = true;
+            tempProcesses.erase(tempProcesses.begin());
         }
 
         // CPU burst 
@@ -19,6 +21,12 @@ void SJF::execute() {
         if (!_readyQueue.empty()) {
             // execute CPU burst
             Process* currentProcess = _readyQueue.top();
+
+            // calculate waiting time
+            if (currentProcess->isWaiting) {
+                currentProcess->waitingTime += (currentTime - currentProcess->startReadyQueue);
+                currentProcess->isWaiting = false;
+            }
 
             currentProcess->CPUBurst[0]--;
             currentID = currentProcess->ID;
@@ -32,8 +40,14 @@ void SJF::execute() {
                 }
                 _readyQueue.pop();
             }
+
+            // calculate turnaround time 
+            if (currentProcess->resourceBurst.empty() && currentProcess->CPUBurst.empty()) {
+                currentProcess->turnAroundTime = (currentTime + 1) - currentProcess->arrivalTime;
+            }
         } 
         else {
+            // CPU is free 
             _CPU.push_back(-1);
         }
 
@@ -41,11 +55,13 @@ void SJF::execute() {
         if (!_blockedQueue.empty()) {
             Process* currentProcess = _blockedQueue.front();
 
+            // process on ready queue or CPU 
             if (currentID == currentProcess->ID) {
                 _R.push_back(-1);
                 ++currentTime;
                 continue;
             }
+            
             currentProcess->resourceBurst[0]--;
             _R.push_back(currentProcess->ID);
 
@@ -54,17 +70,25 @@ void SJF::execute() {
 
                 if (!currentProcess->CPUBurst.empty()) {
                     _readyQueue.push(currentProcess);
+                    currentProcess->startReadyQueue = (currentTime + 1);
+                    currentProcess->isWaiting = true;
                 }
                 _blockedQueue.pop();
             }
+
+            // calculate turnaround time 
+            if (currentProcess->resourceBurst.empty() && currentProcess->CPUBurst.empty()) {
+                currentProcess->turnAroundTime = (currentTime + 1) - currentProcess->arrivalTime;
+            }
         }
         else {
+            // Resource is free 
             _R.push_back(-1);
         }
 
         ++currentTime;
 
-        if (_processes.empty() && _readyQueue.empty() && _blockedQueue.empty()) {
+        if (tempProcesses.empty() && _readyQueue.empty() && _blockedQueue.empty()) {
             break;
         }
     }

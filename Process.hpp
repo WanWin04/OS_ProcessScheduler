@@ -11,8 +11,11 @@ public:
     int ID;
     int arrivalTime;
 
-    std::vector<int> CPUBurst;
-    std::vector<int> resourceBurst;
+    bool isWaiting; // waiting on ready queue
+    int startReadyQueue; // time index of ready queue
+
+    std::vector<int> CPUBurst; // store CPU bursts
+    std::vector<int> resourceBurst; // store resource bursts
 
     int turnAroundTime;
     int waitingTime; 

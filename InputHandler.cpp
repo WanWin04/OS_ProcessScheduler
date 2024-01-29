@@ -10,22 +10,23 @@ Process* InputHandler::readOneLine(std::string line, int id) {
     std::stringstream ss(line);
     int arrTime;
     ss >> arrTime;
-    Process* result = new Process();
-    result->ID = id;
-    result->arrivalTime = arrTime;
+    Process* process = new Process();
+    process->ID = id;
+    process->arrivalTime = arrTime;
+    process->startReadyQueue = arrTime;
 
     int temp;
     int index = 0;
     while (ss >> temp) {
         if (index % 2 == 0) {
-            result->CPUBurst.push_back(temp);
+            process->CPUBurst.push_back(temp);
         } else {
-            result->resourceBurst.push_back(temp);
+            process->resourceBurst.push_back(temp);
         }
         
         ++index;
     }
-    return result;
+    return process;
 }
 
 void InputHandler::readInput(const std::string& filename) {
@@ -54,7 +55,10 @@ void InputHandler::readInput(const std::string& filename) {
             std::cerr << "Error: Invalid format in input file." << std::endl;
             return;
         }
+
+        // read each line data process 
         Process* process = readOneLine(line, id++);
+
         processes.push_back(process);
         --numProcess;
     }

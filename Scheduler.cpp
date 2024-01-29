@@ -34,7 +34,7 @@ void Scheduler::exportData(const std::string& filename) {
     }
 
     os << std::endl;
-
+    
     for (int i = 0; i < _processes.size(); ++i) {
         os << _processes[i]->waitingTime << " ";
     }
