@@ -24,7 +24,7 @@ void SJF::execute() {
             currentID = currentProcess->ID;
             _CPU.push_back(currentProcess->ID);
 
-            if (currentProcess->CPUBurst[0] <= 0) {
+            if (currentProcess->CPUBurst[0] == 0) {
                 currentProcess->CPUBurst.erase(currentProcess->CPUBurst.begin());
 
                 if (!currentProcess->resourceBurst.empty()) {
@@ -49,7 +49,7 @@ void SJF::execute() {
             currentProcess->resourceBurst[0]--;
             _R.push_back(currentProcess->ID);
 
-            if (currentProcess->resourceBurst[0] <= 0) {
+            if (currentProcess->resourceBurst[0] == 0) {
                 currentProcess->resourceBurst.erase(currentProcess->resourceBurst.begin());
 
                 if (!currentProcess->CPUBurst.empty()) {
