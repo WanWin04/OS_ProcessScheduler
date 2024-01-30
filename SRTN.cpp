@@ -11,14 +11,12 @@ void SRTN::execute() {
     while ( true ) {
         while (!currentProcesses.empty() && currentProcesses.front()->arrivalTime == currentTime) {
             _readyQueueD.push(currentProcesses.front());
-
             currentProcesses.erase(currentProcesses.begin());
         }
 
         int currentID = -INT_MAX;
         if (!_readyQueueD.empty()) {
             Process* currentProcess = _readyQueueD.top();
-            
 
             currentProcess->CPUBurst[0]--;
             currentID = currentProcess->ID;
@@ -54,6 +52,8 @@ void SRTN::execute() {
 
                 if (!currentProcess->CPUBurst.empty()) {
                     _readyQueueD.push(currentProcess);
+                    currentProcess->startReadyQueue = (currentTime + 1);
+                    currentProcess->isWaiting = true;
                 }
                 _blockedQueue.pop();
             }
