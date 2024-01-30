@@ -7,7 +7,7 @@ SJF::SJF(InputHandler &input) : Scheduler(input.processes) {}
 void SJF::execute() {
     int currentTime = 0;
     std::vector<Process*> currentProcesses = _processes;
-    
+
     std::sort(currentProcesses.begin(), currentProcesses.end(), [](const Process* a, const Process* b) {
         return a->arrivalTime < b->arrivalTime;
     });
@@ -32,11 +32,11 @@ void SJF::execute() {
                 currentProcess->isWaiting = false;
             }
 
-            currentProcess->CPUBurst[0]--;            
+            currentProcess->CPUBurst[CPU_BURST_INDEX]--;            
             currentID = currentProcess->ID;
             _CPU.push_back(currentProcess->ID);
 
-            if (currentProcess->CPUBurst[0] == 0) {
+            if (currentProcess->CPUBurst[CPU_BURST_INDEX] == 0) {
                 currentProcess->CPUBurst.erase(currentProcess->CPUBurst.begin());
 
                 if (!currentProcess->resourceBurst.empty()) {
@@ -66,10 +66,10 @@ void SJF::execute() {
                 continue;
             }
             
-            currentProcess->resourceBurst[0]--;
+            currentProcess->resourceBurst[CPU_BURST_INDEX]--;
             _R.push_back(currentProcess->ID);
 
-            if (currentProcess->resourceBurst[0] == 0) {
+            if (currentProcess->resourceBurst[CPU_BURST_INDEX] == 0) {
                 currentProcess->resourceBurst.erase(currentProcess->resourceBurst.begin());
 
                 if (!currentProcess->CPUBurst.empty()) {

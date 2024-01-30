@@ -9,7 +9,7 @@ void Scheduler::exportData(const std::string& filename) {
 
     for (int i = 0; i < _CPU.size(); ++i) {
         if (_CPU[i] == -1) {
-            os << "_";;
+            os << "_";
         } else {
             os << _CPU[i];
         }

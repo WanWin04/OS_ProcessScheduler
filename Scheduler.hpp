@@ -10,15 +10,17 @@
 
 #include "Process.hpp"
 
+const static int CPU_BURST_INDEX = 0;
+
 struct CompareProcess {
     bool operator()(const Process* a, const Process* b) const {
-        return a->CPUBurst[0] > b->CPUBurst[0];
+        return a->CPUBurst[CPU_BURST_INDEX] > b->CPUBurst[CPU_BURST_INDEX];
     }
 };
 
 struct CompareProcessD {
     bool operator()(const Process* a, const Process* b) const {
-        return a->CPUBurst[0] >= b->CPUBurst[0];
+        return a->CPUBurst[CPU_BURST_INDEX] >= b->CPUBurst[CPU_BURST_INDEX];
     }
 };
 
