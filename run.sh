@@ -1,0 +1,1 @@
+./main input.txt output.txt
