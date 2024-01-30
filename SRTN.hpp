@@ -1,6 +1,8 @@
 #ifndef SRTN_HPP
 #define SRTN_HPP
 
+#include <algorithm>
+
 #include "Scheduler.hpp"
 #include "InputHandler.hpp"
 

@@ -6,14 +6,14 @@ SJF::SJF(InputHandler &input) : Scheduler(input.processes) {}
 
 void SJF::execute() {
     int currentTime = 0;
-    std::vector<Process*> tempProcesses = _processes;
+    std::vector<Process*> currentProcesses = _processes;
 
     while ( true ) {
         // push process into queue
-        while (!tempProcesses.empty() && tempProcesses.front()->arrivalTime == currentTime) {
-            _readyQueue.push(tempProcesses.front());
-            tempProcesses.front()->isWaiting = true;
-            tempProcesses.erase(tempProcesses.begin());
+        while (!currentProcesses.empty() && currentProcesses.front()->arrivalTime == currentTime) {
+            _readyQueue.push(currentProcesses.front());
+            currentProcesses.front()->isWaiting = true;
+            currentProcesses.erase(currentProcesses.begin());
         }
 
         // CPU burst 
@@ -88,7 +88,7 @@ void SJF::execute() {
 
         ++currentTime;
 
-        if (tempProcesses.empty() && _readyQueue.empty() && _blockedQueue.empty()) {
+        if (currentProcesses.empty() && _readyQueue.empty() && _blockedQueue.empty()) {
             break;
         }
     }

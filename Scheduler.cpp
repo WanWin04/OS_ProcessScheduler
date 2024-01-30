@@ -4,6 +4,10 @@ Scheduler::Scheduler() {}
 
 Scheduler::Scheduler(std::vector<Process*> processes) : _processes(processes) {}
 
+// void Scheduler::setComparisonFunction(std::function<bool(const Process*, const Process*)> comparisonFunction) {
+//     _readyQueue = std::priority_queue<Process*, std::vector<Process*>, std::function<bool(const Process*, const Process*)>>(comparisonFunction);
+// }
+
 void Scheduler::exportData(const std::string& filename) {
     std::ofstream os(filename);
 
