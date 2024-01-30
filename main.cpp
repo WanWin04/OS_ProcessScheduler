@@ -1,5 +1,5 @@
 #include "SJF.hpp"
-#include "SRTN.hpp"
+// #include "SRTN.hpp"
 #include "InputHandler.hpp"
 #include <iostream>
 
@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
         scheduler = new SJF(input);
         break;
     case 4:
-        scheduler = new SRTN(input);
+        // scheduler = new SRTN(input);
         break;
     default:
         std::cerr << "Unknown algorithm ID." << std::endl;

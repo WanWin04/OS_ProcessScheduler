@@ -6,29 +6,6 @@ InputHandler::InputHandler(const std::string& filename) {
     readInput(filename);
 }
 
-Process* InputHandler::readOneLine(std::string line, int id) {
-    std::stringstream ss(line);
-    int arrTime;
-    ss >> arrTime;
-    Process* process = new Process();
-    process->ID = id;
-    process->arrivalTime = arrTime;
-    process->startReadyQueue = arrTime;
-
-    int temp;
-    int index = 0;
-    while (ss >> temp) {
-        if (index % 2 == 0) {
-            process->CPUBurst.push_back(temp);
-        } else {
-            process->resourceBurst.push_back(temp);
-        }
-        
-        ++index;
-    }
-    return process;
-}
-
 void InputHandler::readInput(const std::string& filename) {
     std::ifstream is(filename);
     if (!is.is_open()) {
@@ -57,11 +34,35 @@ void InputHandler::readInput(const std::string& filename) {
         }
 
         // read each line data process 
-        Process* process = readOneLine(line, id++);
+        std::stringstream ss(line);
+        int arrTime;
+        ss >> arrTime;
+        Process* process = new Process();
+        process->ID = id++;
+        process->arrivalTime = arrTime;
+        process->startReadyQueue = arrTime;
+
+        int temp;
+        int index = 0;
+        while (ss >> temp) {
+            if (index % 2 == 0) {
+                process->CPUBurst.push_back(temp);
+            } else {
+                process->resourceBurst.push_back(temp);
+            }
+            
+            ++index;
+        }
 
         processes.push_back(process);
         --numProcess;
     }
 
     is.close();
+}
+
+InputHandler::~InputHandler() {
+    for (int i = 0; i < processes.size(); ++i) {
+        delete processes[i];
+    }
 }

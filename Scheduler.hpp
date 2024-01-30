@@ -26,8 +26,7 @@ class Scheduler {
 public:
     Scheduler();
     Scheduler(std::vector<Process*> processes);
-
-    // void setComparisonFunction(std::function<bool(const Process*, const Process*)> comparisonFunction);
+    ~Scheduler();
 
     void exportData(const std::string& filename);
     virtual void execute() = 0;
@@ -36,7 +35,6 @@ protected:
     std::vector<Process*> _processes;
     std::priority_queue<Process*, std::vector<Process*>, CompareProcess> _readyQueue;
     std::priority_queue<Process*, std::vector<Process*>, CompareProcessD> _readyQueueD;
-    // std::priority_queue<Process*, std::vector<Process*>, std::function<bool(const Process*, const Process*)>> _readyQueue;
     std::queue<Process*> _blockedQueue;
     std::vector<int> _CPU;
     std::vector<int> _R;

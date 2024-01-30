@@ -17,7 +17,7 @@ void SJF::execute() {
         }
 
         // CPU burst 
-        int currentID = -INT_MAX;
+        int currentID = 0;
         if (!_readyQueue.empty()) {
             // execute CPU burst
             Process* currentProcess = _readyQueue.top();
@@ -28,7 +28,7 @@ void SJF::execute() {
                 currentProcess->isWaiting = false;
             }
 
-            currentProcess->CPUBurst[0]--;
+            currentProcess->CPUBurst[0]--;            
             currentID = currentProcess->ID;
             _CPU.push_back(currentProcess->ID);
 

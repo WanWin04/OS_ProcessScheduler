@@ -1,17 +1,17 @@
-#ifndef SRTN_HPP
-#define SRTN_HPP
+// #ifndef SRTN_HPP
+// #define SRTN_HPP
 
-#include <algorithm>
+// #include <algorithm>
 
-#include "Scheduler.hpp"
-#include "InputHandler.hpp"
+// #include "Scheduler.hpp"
+// #include "InputHandler.hpp"
 
-class SRTN : public Scheduler {
-public:
-    SRTN();
-    SRTN(InputHandler &input);
+// class SRTN : public Scheduler {
+// public:
+//     SRTN();
+//     SRTN(InputHandler &input);
 
-    void execute() override;
-};
+//     void execute() override;
+// };
 
-#endif
+// #endif

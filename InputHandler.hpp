@@ -18,9 +18,9 @@ public:
 
     InputHandler();
     InputHandler(const std::string& filename);
+    ~InputHandler();
 
     void readInput(const std::string& filename);
-    Process* readOneLine(std::string line, int id);
 };
 
 #endif
