@@ -7,6 +7,10 @@ SJF::SJF(InputHandler &input) : Scheduler(input.processes) {}
 void SJF::execute() {
     int currentTime = 0;
     std::vector<Process*> currentProcesses = _processes;
+    
+    std::sort(currentProcesses.begin(), currentProcesses.end(), [](const Process* a, const Process* b) {
+        return a->arrivalTime < b->arrivalTime;
+    });
 
     while ( true ) {
         // push process into queue

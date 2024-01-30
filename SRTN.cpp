@@ -1,71 +1,73 @@
-// #include "SRTN.hpp"
+#include "SRTN.hpp"
 
-// SRTN::SRTN() {}
+SRTN::SRTN() {}
 
-// SRTN::SRTN(InputHandler &input) : Scheduler(input.processes) {}
+SRTN::SRTN(InputHandler &input) : Scheduler(input.processes) {}
 
-// void SRTN::execute() {
-//     int currentTime = 0;
-//     std::vector<Process> currentProcesses = _processes;
+void SRTN::execute() {
+    int currentTime = 0;
+    std::vector<Process*> currentProcesses = _processes;
 
-//     while ( true ) {
-//         while (!currentProcesses.empty() && currentProcesses.front().arrivalTime == currentTime) {
-//             _readyQueueD.push(currentProcesses.front());
-//             currentProcesses.erase(currentProcesses.begin());
-//         }
+    std::sort(currentProcesses.begin(), currentProcesses.end(), [](const Process* a, const Process* b) {
+        return a->arrivalTime < b->arrivalTime;
+    });
 
-//         int currentID = -INT_MAX;
-//         if (!_readyQueueD.empty()) {
-//             Process currentProcess = _readyQueueD.top();
+    while ( true ) {
+        while (!currentProcesses.empty() && currentProcesses.front()->arrivalTime == currentTime) {
+            _readyQueueD.push(currentProcesses.front());
+            currentProcesses.erase(currentProcesses.begin());
+        }
 
-//             currentProcess.CPUBurst[0]--;
-//             currentID = currentProcess.ID;
-//             _CPU.push_back(currentProcess.ID);
+        int currentID = 0;
+        if (!_readyQueueD.empty()) {
+            Process* currentProcess = _readyQueueD.top();
 
-//             if (currentProcess.CPUBurst[0] == 0) {
-//                 currentProcess.CPUBurst.erase(currentProcess.CPUBurst.begin());
+            currentProcess->CPUBurst[0]--;
+            currentID = currentProcess->ID;
+            _CPU.push_back(currentProcess->ID);
 
-//                 if (!currentProcess.resourceBurst.empty()) {
-//                     _blockedQueue.push(currentProcess);
-//                 }
-//                 _readyQueueD.pop();
-//             }
-//         }
-//         else {
-//             _CPU.push_back(-1);
-//         }
+            if (currentProcess->CPUBurst[0] == 0) {
+                currentProcess->CPUBurst.erase(currentProcess->CPUBurst.begin());
 
-//         if (!_blockedQueue.empty()) {
-//             Process* currentProcess = _blockedQueue.front();
+                if (!currentProcess->resourceBurst.empty()) {
+                    _blockedQueue.push(currentProcess);
+                }
+                _readyQueueD.pop();
+            }
+        }
+        else {
+            _CPU.push_back(-1);
+        }
 
-//             if (currentID == currentProcess.ID) {
-//                 _R.push_back(-1);
-//                 ++currentTime;
-//                 continue;
-//             }
+        if (!_blockedQueue.empty()) {
+            Process* currentProcess = _blockedQueue.front();
 
-//             currentProcess.resourceBurst[0]--;
-//             _R.push_back(currentProcess.ID);
+            if (currentID == currentProcess->ID) {
+                _R.push_back(-1);
+                ++currentTime;
+                continue;
+            }
 
-//             if (currentProcess.resourceBurst[0] == 0) {
-//                 currentProcess.resourceBurst.erase(currentProcess.resourceBurst.begin());
+            currentProcess->resourceBurst[0]--;
+            _R.push_back(currentProcess->ID);
 
-//                 if (!currentProcess.CPUBurst.empty()) {
-//                     _readyQueueD.push(currentProcess);
-//                     currentProcess.startReadyQueue = (currentTime + 1);
-//                     currentProcess.isWaiting = true;
-//                 }
-//                 _blockedQueue.pop();
-//             }
-//         }
-//         else {
-//             _R.push_back(-1);
-//         }
+            if (currentProcess->resourceBurst[0] == 0) {
+                currentProcess->resourceBurst.erase(currentProcess->resourceBurst.begin());
 
-//         ++currentTime;
+                if (!currentProcess->CPUBurst.empty()) {
+                    _readyQueueD.push(currentProcess);
+                }
+                _blockedQueue.pop();
+            }
+        }
+        else {
+            _R.push_back(-1);
+        }
 
-//         if (currentProcesses.empty() && _readyQueueD.empty() && _blockedQueue.empty()) {
-//             break;
-//         }
-//     }
-// }
+        ++currentTime;
+
+        if (currentProcesses.empty() && _readyQueueD.empty() && _blockedQueue.empty()) {
+            break;
+        }
+    }
+}

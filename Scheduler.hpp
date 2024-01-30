@@ -26,7 +26,6 @@ class Scheduler {
 public:
     Scheduler();
     Scheduler(std::vector<Process*> processes);
-    ~Scheduler();
 
     void exportData(const std::string& filename);
     virtual void execute() = 0;
