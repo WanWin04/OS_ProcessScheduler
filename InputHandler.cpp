@@ -7,28 +7,28 @@ InputHandler::InputHandler(const std::string& filename) {
 }
 
 void InputHandler::readInput(const std::string& filename) {
-    std::ifstream is(filename);
-    if (!is.is_open()) {
+    std::ifstream ifs(filename);
+    if (!ifs.is_open()) {
         std::cerr << "Error: Unable to open file " << filename << std::endl;
         return;
     }
     
     int numProcess;
     
-    is >> algorithmID;
+    ifs >> algorithmID;
 
     if (algorithmID == 2) {
-        is >> timeQuantum;
+        ifs >> timeQuantum;
     }
     
-    is >> numProcess;
+    ifs >> numProcess;
 
-    is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    ifs.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     
     int id = 1;
     while (numProcess) {
         std::string line;
-        if (!std::getline(is, line)) {
+        if (!std::getline(ifs, line)) {
             std::cerr << "Error: Invalid format in input file." << std::endl;
             return;
         }
@@ -58,7 +58,7 @@ void InputHandler::readInput(const std::string& filename) {
         --numProcess;
     }
 
-    is.close();
+    ifs.close();
 }
 
 InputHandler::~InputHandler() {

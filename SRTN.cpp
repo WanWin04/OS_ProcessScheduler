@@ -113,7 +113,7 @@ void SRTN::execute() {
 
         ++currentTime;
 
-        if (currentProcesses.empty() && _readyQueue.empty() && _blockedQueue.empty()) {
+        if (isTerminated(currentProcesses, _readyQueue, _blockedQueue)) {
             break;
         }
     }

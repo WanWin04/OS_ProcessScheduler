@@ -5,39 +5,43 @@ Scheduler::Scheduler() {}
 Scheduler::Scheduler(std::vector<Process*> processes) : _processes(processes) {}
 
 void Scheduler::exportData(const std::string& filename) {
-    std::ofstream os(filename);
+    std::ofstream ofs(filename);
 
     for (int i = 0; i < _CPU.size(); ++i) {
         if (_CPU[i] == -1) {
-            os << "_";
+            ofs << "_";
         } else {
-            os << _CPU[i];
+            ofs << _CPU[i];
         }
-        os << " ";
+        ofs << " ";
     }
 
-    os << std::endl;
+    ofs << std::endl;
 
     for (int i = 0; i < _R.size(); ++i) {
         if (_R[i] == -1) {
-            os << "_";
+            ofs << "_";
         } else {
-            os << _R[i];
+            ofs << _R[i];
         }
-        os << " ";
+        ofs << " ";
     }
 
-    os << std::endl;
+    ofs << std::endl;
 
     for (int i = 0; i < _processes.size(); ++i) {
-        os << _processes[i]->turnAroundTime << " ";
+        ofs << _processes[i]->turnAroundTime << " ";
     }
 
-    os << std::endl;
+    ofs << std::endl;
     
     for (int i = 0; i < _processes.size(); ++i) {
-        os << _processes[i]->waitingTime << " ";
+        ofs << _processes[i]->waitingTime << " ";
     }
 
-    os.close();
+    ofs.close();
+}
+
+bool Scheduler::isTerminated(std::vector<Process*> processes, std::vector<Process*> readyQueue, std::queue<Process*> blockedQueue) {
+    return (processes.empty() && readyQueue.empty() && blockedQueue.empty());
 }
