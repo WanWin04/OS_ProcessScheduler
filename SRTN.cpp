@@ -8,19 +8,26 @@ void SRTN::execute() {
     int currentTime = 0;
     std::vector<Process*> currentProcesses = _processes;
 
+    // sort processes with increasing arrival time
     std::sort(currentProcesses.begin(), currentProcesses.end(), [](const Process* a, const Process* b) {
         return a->arrivalTime < b->arrivalTime;
     });
 
     while ( true ) {
         while (!currentProcesses.empty() && currentProcesses.front()->arrivalTime == currentTime) {
-            _readyQueueD.push(currentProcesses.front());
+            // _readyQueueD.push(currentProcesses.front());
+            _readyQueue.push_back(currentProcesses.front());
             currentProcesses.erase(currentProcesses.begin());
         }
 
+        std::sort(_readyQueue.begin(), _readyQueue.end(), [](const Process* a, const Process* b) {
+            return a->CPUBurst[CPU_BURST_INDEX] >= b->CPUBurst[CPU_BURST_INDEX];
+        });
+
         int currentID = 0;
-        if (!_readyQueueD.empty()) {
-            Process* currentProcess = _readyQueueD.top();
+        if (!_readyQueue.empty()) {
+            // Process* currentProcess = _readyQueueD.top();
+            Process* currentProcess = _readyQueue.front();
 
             currentProcess->CPUBurst[CPU_BURST_INDEX]--;
             currentID = currentProcess->ID;
@@ -32,7 +39,8 @@ void SRTN::execute() {
                 if (!currentProcess->resourceBurst.empty()) {
                     _blockedQueue.push(currentProcess);
                 }
-                _readyQueueD.pop();
+                // _readyQueueD.pop();
+                _readyQueue.erase(_readyQueue.begin());
             }
         }
         else {
@@ -55,7 +63,8 @@ void SRTN::execute() {
                 currentProcess->resourceBurst.erase(currentProcess->resourceBurst.begin());
 
                 if (!currentProcess->CPUBurst.empty()) {
-                    _readyQueueD.push(currentProcess);
+                    // _readyQueueD.push(currentProcess);
+                    _readyQueue.push_back(currentProcess);
                 }
                 _blockedQueue.pop();
             }
@@ -66,7 +75,11 @@ void SRTN::execute() {
 
         ++currentTime;
 
-        if (currentProcesses.empty() && _readyQueueD.empty() && _blockedQueue.empty()) {
+        // if (currentProcesses.empty() && _readyQueueD.empty() && _blockedQueue.empty()) {
+        //     break;
+        // }
+
+        if (currentProcesses.empty() && _readyQueue.empty() && _blockedQueue.empty()) {
             break;
         }
     }

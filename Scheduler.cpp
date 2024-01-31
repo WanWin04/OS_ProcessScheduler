@@ -41,4 +41,3 @@ void Scheduler::exportData(const std::string& filename) {
 
     os.close();
 }
-

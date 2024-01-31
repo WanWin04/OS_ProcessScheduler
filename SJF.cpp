@@ -4,10 +4,44 @@ SJF::SJF() : Scheduler() {}
 
 SJF::SJF(InputHandler &input) : Scheduler(input.processes) {}
 
+// // insertion sort
+// void SJF::insertionSort(std::vector<Process*>& readyQueue) {
+//     int n = readyQueue.size();
+//     for (int i = 1; i < n; ++i) {
+//         Process* key = readyQueue[i];
+//         int j = i - 1;
+//         while (j >= 0 && readyQueue[j]->CPUBurst[CPU_BURST_INDEX] > key->CPUBurst[CPU_BURST_INDEX]) {
+//             readyQueue[j + 1] = readyQueue[j];
+//             j = j - 1;
+//         }
+//         readyQueue[j + 1] = key;
+//     }
+// }
+
+void SJF::insertionSort(std::vector<Process*>& readyQueue) {
+    int n = readyQueue.size();
+    for (int i = 1; i < n; ++i) {
+        Process* key = readyQueue[i];
+        int j = i - 1;
+
+        while (j >= 0 && readyQueue[j]->CPUBurst[CPU_BURST_INDEX] > key->CPUBurst[CPU_BURST_INDEX]) {
+            readyQueue[j + 1] = readyQueue[j];
+            j = j - 1;
+        }
+
+        while (j >= 0 && readyQueue[j]->CPUBurst[CPU_BURST_INDEX] == key->CPUBurst[CPU_BURST_INDEX] && !readyQueue[j]->isPriority) {
+            readyQueue[j + 1] = readyQueue[j];
+            j = j - 1;
+        }
+        readyQueue[j + 1] = key;
+    }
+}
+
 void SJF::execute() {
     int currentTime = 0;
     std::vector<Process*> currentProcesses = _processes;
 
+    // sort processes with increasing arrival time
     std::sort(currentProcesses.begin(), currentProcesses.end(), [](const Process* a, const Process* b) {
         return a->arrivalTime < b->arrivalTime;
     });
@@ -15,16 +49,18 @@ void SJF::execute() {
     while ( true ) {
         // push process into queue
         while (!currentProcesses.empty() && currentProcesses.front()->arrivalTime == currentTime) {
-            _readyQueue.push(currentProcesses.front());
+            _readyQueue.push_back(currentProcesses.front());
             currentProcesses.front()->isWaiting = true;
             currentProcesses.erase(currentProcesses.begin());
         }
+
+        insertionSort(_readyQueue);
 
         // CPU burst 
         int currentID = 0;
         if (!_readyQueue.empty()) {
             // execute CPU burst
-            Process* currentProcess = _readyQueue.top();
+            Process* currentProcess = _readyQueue.front();
 
             // calculate waiting time
             if (currentProcess->isWaiting) {
@@ -40,9 +76,11 @@ void SJF::execute() {
                 currentProcess->CPUBurst.erase(currentProcess->CPUBurst.begin());
 
                 if (!currentProcess->resourceBurst.empty()) {
+                    currentProcess->isPriority = false;
                     _blockedQueue.push(currentProcess);
                 }
-                _readyQueue.pop();
+                // _readyQueue.pop();
+                _readyQueue.erase(_readyQueue.begin());
             }
 
             // calculate turnaround time 
@@ -73,7 +111,7 @@ void SJF::execute() {
                 currentProcess->resourceBurst.erase(currentProcess->resourceBurst.begin());
 
                 if (!currentProcess->CPUBurst.empty()) {
-                    _readyQueue.push(currentProcess);
+                    _readyQueue.push_back(currentProcess);
                     currentProcess->startReadyQueue = (currentTime + 1);
                     currentProcess->isWaiting = true;
                 }

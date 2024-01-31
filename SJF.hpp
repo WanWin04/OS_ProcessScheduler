@@ -10,6 +10,9 @@ public:
     SJF(InputHandler &input);
 
     void execute() override;
+
+private:
+    void insertionSort(std::vector<Process*>& readyQueue);
 };
 
 #endif
