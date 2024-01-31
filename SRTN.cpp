@@ -4,6 +4,29 @@ SRTN::SRTN() {}
 
 SRTN::SRTN(InputHandler &input) : Scheduler(input.processes) {}
 
+// insertion sort
+void SRTN::insertionSort(std::vector<Process*>& readyQueue, int currentTime) {
+    int n = readyQueue.size();
+    for (int i = 1; i < n; ++i) {
+        Process* key = readyQueue[i];
+        int j = i - 1;
+
+        while (j >= 0 && readyQueue[j]->CPUBurst[CPU_BURST_INDEX] > key->CPUBurst[CPU_BURST_INDEX]) {
+            readyQueue[j + 1] = readyQueue[j];
+            j = j - 1;
+        }
+
+        // check priority
+        while (j >= 0 && readyQueue[j]->CPUBurst[CPU_BURST_INDEX] == key->CPUBurst[CPU_BURST_INDEX] && !readyQueue[j]->isPriority) {
+            readyQueue[j]->isWaiting = true;
+            readyQueue[j]->startReadyQueue = currentTime;
+            readyQueue[j + 1] = readyQueue[j];
+            j = j - 1;
+        }
+        readyQueue[j + 1] = key;
+    }
+}
+
 void SRTN::execute() {
     int currentTime = 0;
     std::vector<Process*> currentProcesses = _processes;
@@ -15,19 +38,24 @@ void SRTN::execute() {
 
     while ( true ) {
         while (!currentProcesses.empty() && currentProcesses.front()->arrivalTime == currentTime) {
-            // _readyQueueD.push(currentProcesses.front());
             _readyQueue.push_back(currentProcesses.front());
+            currentProcesses.front()->isWaiting = true;
             currentProcesses.erase(currentProcesses.begin());
         }
 
-        std::sort(_readyQueue.begin(), _readyQueue.end(), [](const Process* a, const Process* b) {
-            return a->CPUBurst[CPU_BURST_INDEX] >= b->CPUBurst[CPU_BURST_INDEX];
-        });
+        // sort priority
+        insertionSort(_readyQueue, currentTime);
 
         int currentID = 0;
         if (!_readyQueue.empty()) {
-            // Process* currentProcess = _readyQueueD.top();
             Process* currentProcess = _readyQueue.front();
+            currentProcess->isPriority = false;
+
+            // calculate waiting time
+            if (currentProcess->isWaiting) {
+                currentProcess->waitingTime += (currentTime - currentProcess->startReadyQueue);
+                currentProcess->isWaiting = false;
+            }
 
             currentProcess->CPUBurst[CPU_BURST_INDEX]--;
             currentID = currentProcess->ID;
@@ -39,8 +67,12 @@ void SRTN::execute() {
                 if (!currentProcess->resourceBurst.empty()) {
                     _blockedQueue.push(currentProcess);
                 }
-                // _readyQueueD.pop();
                 _readyQueue.erase(_readyQueue.begin());
+            }
+
+            // calculate turnaround time 
+            if (currentProcess->resourceBurst.empty() && currentProcess->CPUBurst.empty()) {
+                currentProcess->turnAroundTime = (currentTime + 1) - currentProcess->arrivalTime;
             }
         }
         else {
@@ -63,10 +95,16 @@ void SRTN::execute() {
                 currentProcess->resourceBurst.erase(currentProcess->resourceBurst.begin());
 
                 if (!currentProcess->CPUBurst.empty()) {
-                    // _readyQueueD.push(currentProcess);
                     _readyQueue.push_back(currentProcess);
+                    currentProcess->startReadyQueue = (currentTime + 1);
+                    currentProcess->isWaiting = true;
                 }
                 _blockedQueue.pop();
+            }
+
+            // calculate turnaround time 
+            if (currentProcess->resourceBurst.empty() && currentProcess->CPUBurst.empty()) {
+                currentProcess->turnAroundTime = (currentTime + 1) - currentProcess->arrivalTime;
             }
         }
         else {
@@ -74,10 +112,6 @@ void SRTN::execute() {
         }
 
         ++currentTime;
-
-        // if (currentProcesses.empty() && _readyQueueD.empty() && _blockedQueue.empty()) {
-        //     break;
-        // }
 
         if (currentProcesses.empty() && _readyQueue.empty() && _blockedQueue.empty()) {
             break;

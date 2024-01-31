@@ -5,7 +5,7 @@ SJF::SJF() : Scheduler() {}
 SJF::SJF(InputHandler &input) : Scheduler(input.processes) {}
 
 // insertion sort
-void SJF::insertionSort(std::vector<Process*>& readyQueue) {
+void SJF::insertionSort(std::vector<Process*>& readyQueue, int currentTime) {
     int n = readyQueue.size();
     for (int i = 1; i < n; ++i) {
         Process* key = readyQueue[i];
@@ -43,7 +43,7 @@ void SJF::execute() {
         }
 
         // sort priority
-        insertionSort(_readyQueue);
+        insertionSort(_readyQueue, currentTime);
 
         // CPU burst 
         int currentID = 0;
@@ -65,10 +65,8 @@ void SJF::execute() {
                 currentProcess->CPUBurst.erase(currentProcess->CPUBurst.begin());
 
                 if (!currentProcess->resourceBurst.empty()) {
-                    currentProcess->isPriority = false;
                     _blockedQueue.push(currentProcess);
                 }
-                // _readyQueue.pop();
                 _readyQueue.erase(_readyQueue.begin());
             }
 
@@ -102,6 +100,7 @@ void SJF::execute() {
                 if (!currentProcess->CPUBurst.empty()) {
                     _readyQueue.push_back(currentProcess);
                     currentProcess->startReadyQueue = (currentTime + 1);
+                    currentProcess->isPriority = false;
                     currentProcess->isWaiting = true;
                 }
                 _blockedQueue.pop();

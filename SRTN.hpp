@@ -12,6 +12,8 @@ public:
     SRTN(InputHandler &input);
 
     void execute() override;
+
+    void insertionSort(std::vector<Process*>& readyQueue, int currentTime) override;
 };
 
 #endif

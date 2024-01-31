@@ -29,8 +29,12 @@ public:
     Scheduler();
     Scheduler(std::vector<Process*> processes);
 
+    // export data to output file 
     void exportData(const std::string& filename);
+
+    // pure virtual function  
     virtual void execute() = 0;
+    virtual void insertionSort(std::vector<Process*>& readyQueue, int currentTime) = 0;
 
 protected:
     std::vector<Process*> _processes;

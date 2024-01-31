@@ -12,7 +12,7 @@ public:
     void execute() override;
 
 private:
-    void insertionSort(std::vector<Process*>& readyQueue);
+    void insertionSort(std::vector<Process*>& readyQueue, int currentTime) override;
 };
 
 #endif
