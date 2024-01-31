@@ -4,20 +4,7 @@ SJF::SJF() : Scheduler() {}
 
 SJF::SJF(InputHandler &input) : Scheduler(input.processes) {}
 
-// // insertion sort
-// void SJF::insertionSort(std::vector<Process*>& readyQueue) {
-//     int n = readyQueue.size();
-//     for (int i = 1; i < n; ++i) {
-//         Process* key = readyQueue[i];
-//         int j = i - 1;
-//         while (j >= 0 && readyQueue[j]->CPUBurst[CPU_BURST_INDEX] > key->CPUBurst[CPU_BURST_INDEX]) {
-//             readyQueue[j + 1] = readyQueue[j];
-//             j = j - 1;
-//         }
-//         readyQueue[j + 1] = key;
-//     }
-// }
-
+// insertion sort
 void SJF::insertionSort(std::vector<Process*>& readyQueue) {
     int n = readyQueue.size();
     for (int i = 1; i < n; ++i) {
