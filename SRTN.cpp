@@ -27,6 +27,16 @@ void SRTN::insertionSort(std::vector<Process*>& readyQueue, int currentTime) {
     }
 }
 
+// void printReadyQueue(const std::vector<Process*>& readyQueue) {
+//     std::cout << "Ready Queue Information:\n";
+//     std::cout << "-----------------------------------------\n";
+
+//     for (const auto& process : readyQueue) {
+//         std::cout << process->ID << " - " << process->CPUBurst[0] << std::endl;
+//         std::cout << "\n";
+//     }
+// }
+
 void SRTN::execute() {
     int currentTime = 0;
     std::vector<Process*> currentProcesses = _processes;
@@ -45,6 +55,8 @@ void SRTN::execute() {
 
         // sort priority
         insertionSort(_readyQueue, currentTime);
+
+        // printReadyQueue(_readyQueue);
 
         int currentID = 0;
         if (!_readyQueue.empty()) {
@@ -113,7 +125,7 @@ void SRTN::execute() {
 
         ++currentTime;
 
-        if (isTerminated(currentProcesses, _readyQueue, _blockedQueue)) {
+        if (isTerminatedAll(currentProcesses, _readyQueue, _blockedQueue)) {
             break;
         }
     }

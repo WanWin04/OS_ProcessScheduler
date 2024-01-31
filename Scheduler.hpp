@@ -33,7 +33,7 @@ protected:
     virtual void insertionSort(std::vector<Process*>& readyQueue, int currentTime) = 0;
 
     // chech if all process is terminated 
-    bool isTerminated(std::vector<Process*> processes, std::vector<Process*> readyQueue, std::queue<Process*> blockedQueue);
+    bool isTerminatedAll(std::vector<Process*> processes, std::vector<Process*> readyQueue, std::queue<Process*> blockedQueue);
 };
 
 #endif

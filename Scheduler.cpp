@@ -42,6 +42,6 @@ void Scheduler::exportData(const std::string& filename) {
     ofs.close();
 }
 
-bool Scheduler::isTerminated(std::vector<Process*> processes, std::vector<Process*> readyQueue, std::queue<Process*> blockedQueue) {
+bool Scheduler::isTerminatedAll(std::vector<Process*> processes, std::vector<Process*> readyQueue, std::queue<Process*> blockedQueue) {
     return (processes.empty() && readyQueue.empty() && blockedQueue.empty());
 }
