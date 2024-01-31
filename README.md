@@ -19,8 +19,7 @@ To get started with this project, follow these steps:
 1. Clone the repository to your local machine:
 
 ```bash
-[git clone https://github.com/Koa28062004/React-Web.git
-](https://github.com/WanWin04/NewScheduling.git)
+https://github.com/WanWin04/NewScheduling.git
 ```
 
 To run the project, follow one of these methods:
