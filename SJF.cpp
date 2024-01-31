@@ -16,6 +16,7 @@ void SJF::insertionSort(std::vector<Process*>& readyQueue) {
             j = j - 1;
         }
 
+        // check priority
         while (j >= 0 && readyQueue[j]->CPUBurst[CPU_BURST_INDEX] == key->CPUBurst[CPU_BURST_INDEX] && !readyQueue[j]->isPriority) {
             readyQueue[j + 1] = readyQueue[j];
             j = j - 1;
@@ -41,6 +42,7 @@ void SJF::execute() {
             currentProcesses.erase(currentProcesses.begin());
         }
 
+        // sort priority
         insertionSort(_readyQueue);
 
         // CPU burst 
