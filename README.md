@@ -39,6 +39,20 @@ To run the project, follow one of these methods:
 ./run.sh
 ```
 
+### Method 2: Using the Build and Run shell script
+
+1. Build the project:
+
+```bash
+g++ *.cpp -o MSSV1_MSSV2
+```
+
+2. Run the project:
+
+```bash
+./MSSV1_MSSV2.exe input.txt output.txt
+```
+
 
 ## Technologies Used
 
