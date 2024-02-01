@@ -13,13 +13,14 @@ public:
     int ID;
     int arrivalTime;
 
-    bool isWaiting; // waiting on ready queue
-    bool isPriority; // store state of process is old
-    int startReadyQueue; // time index of ready queue
+    bool isOnReady;
+    bool isOnBloked;
+    bool isOnCPU;
+    bool isOnR;
 
     std::vector<int> CPUBurst; // store CPU bursts
     std::vector<int> resourceBurst; // store resource bursts
-
+    
     int turnAroundTime;
     int waitingTime; 
 };

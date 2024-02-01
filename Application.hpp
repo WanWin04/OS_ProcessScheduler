@@ -2,8 +2,7 @@
 #define APPLICATION_HPP
 
 #include "InputHandler.hpp"
-#include "SJF.hpp"
-#include "SRTN.hpp"
+#include "FCFS.hpp"
 
 #include <iostream>
 

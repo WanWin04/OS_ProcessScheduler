@@ -11,16 +11,15 @@ void Application::run(char* source, char* destination) {
 
     switch (algorithmID) {
     case 1:
-        
+        scheduler = new FCFS(input.processes);
         break;
     case 2:
         
         break;
     case 3:
-        scheduler = new SJF(input);
+        
         break;
     case 4:
-        scheduler = new SRTN(input);
         break;
     default:
         std::cerr << "Unknown algorithm ID." << std::endl;

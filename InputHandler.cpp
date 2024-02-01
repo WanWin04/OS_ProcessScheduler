@@ -40,7 +40,6 @@ void InputHandler::readInput(const std::string& filename) {
         Process* process = new Process();
         process->ID = id++;
         process->arrivalTime = arrTime;
-        process->startReadyQueue = arrTime;
 
         int temp;
         int index = 0;
