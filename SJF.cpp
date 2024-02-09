@@ -71,13 +71,13 @@ void SJF::execute() {
 
             currentProcess->CPUBurst[CPU_BURST_INDEX]--;          
             currentID = currentProcess->ID;
-            _CPU.push_back(currentProcess->ID);
+            _CPU.push_back(currentProcess);
 
             if (currentProcess->CPUBurst[CPU_BURST_INDEX] == 0) {
                 currentProcess->CPUBurst.erase(currentProcess->CPUBurst.begin());
 
                 if (!currentProcess->resourceBurst.empty()) {
-                    _blockedQueue.push(currentProcess);
+                    _blockedQueue.push_back(currentProcess);
                 }
                 _readyQueue.erase(_readyQueue.begin());
             }
@@ -89,7 +89,7 @@ void SJF::execute() {
         } 
         else {
             // CPU is free 
-            _CPU.push_back(-1);
+            // _CPU.push_back(-1);
         }
 
         // resource burst
@@ -98,13 +98,13 @@ void SJF::execute() {
 
             // process on ready queue or CPU 
             if (currentID == currentProcess->ID) {
-                _R.push_back(-1);
+                // _R.push_back(-1);
                 ++currentTime;
                 continue;
             }
             
             currentProcess->resourceBurst[CPU_BURST_INDEX]--;
-            _R.push_back(currentProcess->ID);
+            _R.push_back(currentProcess);
 
             if (currentProcess->resourceBurst[CPU_BURST_INDEX] == 0) {
                 currentProcess->resourceBurst.erase(currentProcess->resourceBurst.begin());
@@ -115,7 +115,7 @@ void SJF::execute() {
                     currentProcess->isPriority = false;
                     currentProcess->isWaiting = true;
                 }
-                _blockedQueue.pop();
+                // _blockedQueue.pop();
             }
 
             // calculate turnaround time 
@@ -125,12 +125,12 @@ void SJF::execute() {
         }
         else {
             // Resource is free 
-            _R.push_back(-1);
+            // _R.push_back(-1);
         }
 
         ++currentTime;
 
-        if (isTerminatedAll(currentProcesses, _readyQueue, _blockedQueue)) {
+        if (isTerminated(currentProcesses, _readyQueue, _blockedQueue)) {
             break;
         }
     }
