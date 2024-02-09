@@ -22,6 +22,11 @@ public:
 
     int turnAroundTime;
     int waitingTime; 
+
+    void run() {
+        CPUBurst.front()--;
+        isPriority = false;
+    }
 };
 
 #endif
