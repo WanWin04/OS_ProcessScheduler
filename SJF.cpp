@@ -7,7 +7,7 @@ SJF::SJF(InputHandler &input) : Scheduler(input.processes) {}
 // insertion sort
 void SJF::insertionSort(std::vector<Process*>& readyQueue, int currentTime) {
     int n = readyQueue.size();
-    for (int i = 1; i < n; ++i) {
+    for (int i = 2; i < n; ++i) {
         Process* key = readyQueue[i];
         int j = i - 1;
 
@@ -16,12 +16,22 @@ void SJF::insertionSort(std::vector<Process*>& readyQueue, int currentTime) {
             j = j - 1;
         }
 
-        // check priority
+        // Kiểm tra ưu tiên
         while (j >= 0 && readyQueue[j]->CPUBurst[CPU_BURST_INDEX] == key->CPUBurst[CPU_BURST_INDEX] && !readyQueue[j]->isPriority) {
             readyQueue[j + 1] = readyQueue[j];
             j = j - 1;
         }
         readyQueue[j + 1] = key;
+    }
+}
+
+void printReadyQueue(const std::vector<Process*>& readyQueue) {
+    std::cout << "Ready Queue Information:\n";
+    std::cout << "-----------------------------------------\n";
+
+    for (const auto& process : readyQueue) {
+        std::cout << process->ID << " - " << process->CPUBurst[0] << std::endl;
+        std::cout << "\n";
     }
 }
 
@@ -45,6 +55,8 @@ void SJF::execute() {
         // sort priority
         insertionSort(_readyQueue, currentTime);
 
+        printReadyQueue(_readyQueue);
+
         // CPU burst 
         int currentID = 0;
         if (!_readyQueue.empty()) {
@@ -57,7 +69,7 @@ void SJF::execute() {
                 currentProcess->isWaiting = false;
             }
 
-            currentProcess->CPUBurst[CPU_BURST_INDEX]--;            
+            currentProcess->CPUBurst[CPU_BURST_INDEX]--;          
             currentID = currentProcess->ID;
             _CPU.push_back(currentProcess->ID);
 
@@ -118,7 +130,7 @@ void SJF::execute() {
 
         ++currentTime;
 
-        if (isTerminated(currentProcesses, _readyQueue, _blockedQueue)) {
+        if (isTerminatedAll(currentProcesses, _readyQueue, _blockedQueue)) {
             break;
         }
     }
