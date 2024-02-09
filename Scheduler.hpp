@@ -25,15 +25,15 @@ public:
 protected:
     std::vector<Process*> _processes;
     std::vector<Process*> _readyQueue;
-    std::queue<Process*> _blockedQueue;
-    std::vector<int> _CPU;
-    std::vector<int> _R;
+    std::vector<Process*> _blockedQueue;
+    std::vector<Process*> _CPU;
+    std::vector<Process*> _R;
 
     // pure virtual function 
-    virtual void insertionSort(std::vector<Process*>& readyQueue, int currentTime) = 0;
+    // virtual void insertionSort(std::vector<Process*>& readyQueue, int currentTime) = 0;
 
     // chech if all process is terminated 
-    bool isTerminated(std::vector<Process*> processes, std::vector<Process*> readyQueue, std::queue<Process*> blockedQueue);
+    bool isTerminated(std::vector<Process*> processes, std::vector<Process*> readyQueue, std::vector<Process*> blockedQueue);
 };
 
 #endif

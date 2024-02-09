@@ -8,10 +8,10 @@ void Scheduler::exportData(const std::string& filename) {
     std::ofstream ofs(filename);
 
     for (int i = 0; i < _CPU.size(); ++i) {
-        if (_CPU[i] == -1) {
+        if (_CPU[i]->ID == 0) {
             ofs << "_";
         } else {
-            ofs << _CPU[i];
+            ofs << _CPU[i]->ID;
         }
         ofs << " ";
     }
@@ -19,10 +19,10 @@ void Scheduler::exportData(const std::string& filename) {
     ofs << std::endl;
 
     for (int i = 0; i < _R.size(); ++i) {
-        if (_R[i] == -1) {
+        if (_R[i]->ID == 0) {
             ofs << "_";
         } else {
-            ofs << _R[i];
+            ofs << _R[i]->ID;
         }
         ofs << " ";
     }
@@ -42,6 +42,6 @@ void Scheduler::exportData(const std::string& filename) {
     ofs.close();
 }
 
-bool Scheduler::isTerminated(std::vector<Process*> processes, std::vector<Process*> readyQueue, std::queue<Process*> blockedQueue) {
-    return (processes.empty() && readyQueue.empty() && blockedQueue.empty());
+bool Scheduler::isTerminated(std::vector<Process*> processes, std::vector<Process*> readyQueue, std::vector<Process*> blockedQueue) {
+    return (processes.size() == 0 && readyQueue.size() == 0&& blockedQueue.size() == 0);
 }
