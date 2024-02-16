@@ -11,29 +11,32 @@
 
 const static int CPU_BURST_INDEX = 0;
 
-class Scheduler {
+class Scheduler
+{
 public:
     Scheduler();
-    Scheduler(std::vector<Process*> processes);
+    Scheduler(std::vector<Process *> processes, int timeQuantum);
 
-    // export data to output file 
-    void exportData(const std::string& filename);
+    // export data to output file
+    void exportData(const std::string &filename);
 
-    // pure virtual function  
+    // pure virtual function
     virtual void execute() = 0;
 
 protected:
-    std::vector<Process*> _processes;
-    std::vector<Process*> _readyQueue;
-    std::vector<Process*> _blockedQueue;
-    std::vector<Process*> _CPU;
-    std::vector<Process*> _R;
+    Process temp;
+    int timeQuantum;
+    std::vector<Process *> _processes;
+    std::vector<Process *> _readyQueue;
+    std::vector<Process *> _blockedQueue;
+    std::vector<Process *> _CPU;
+    std::vector<Process *> _R;
 
-    // pure virtual function 
+    // pure virtual function
     // virtual void insertionSort(std::vector<Process*>& readyQueue, int currentTime) = 0;
 
-    // chech if all process is terminated 
-    bool isTerminated(std::vector<Process*> processes, std::vector<Process*> readyQueue, std::vector<Process*> blockedQueue);
+    // chech if all process is terminated
+    bool isTerminated(std::vector<Process *> processes, std::vector<Process *> readyQueue, std::vector<Process *> blockedQueue);
 };
 
 #endif
