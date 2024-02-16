@@ -34,7 +34,7 @@ public:
         int currentTime = 0;
         while (!isTerminated(processes, _readyQueue, _blockedQueue))
         {
-            std::cout << "Time: " << currentTime << std::endl;
+            // std::cout << "Time: " << currentTime << std::endl;
             if (flagPriority == false)
             {
                 for (int i = 0; i < processes.size(); i++)
@@ -66,7 +66,7 @@ public:
             if (currentProcessOnCPU != nullptr)
             {
                 _CPU.push_back(currentProcessOnCPU);
-                currentProcessOnCPU->runCPU();
+                currentProcessOnCPU->CPUBurst.front()--;
 
                 if (currentProcessOnCPU->CPUBurst[0] == 0)
                 {
@@ -97,7 +97,7 @@ public:
             if (currentProcessOnR != nullptr)
             {
                 _R.push_back(currentProcessOnR);
-                currentProcessOnR->runR();
+                currentProcessOnR->resourceBurst.front()--;
                 if (currentProcessOnR->resourceBurst[0] == 0)
                 {
                     currentProcessOnR->resourceBurst.erase(currentProcessOnR->resourceBurst.begin());
