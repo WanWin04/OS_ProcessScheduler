@@ -8,24 +8,34 @@ class FCFS : public Scheduler
 private:
     Process *currentProcessOnCPU;
     Process *currentProcessOnR;
-    
+    void deleteProcess(std::vector<Process *> &processes, Process *process)
+    {
+        for (int i = 0; i < processes.size(); i++)
+        {
+            if (processes[i]->ID == process->ID)
+            {
+                processes.erase(processes.begin() + i);
+                break;
+            }
+        }
+    }
 public:
     FCFS() {}
-    FCFS(InputHandler &input) : Scheduler(input.processes) {}
+    FCFS(InputHandler &input) : Scheduler(input.processes, input.timeQuantum) {}
     void execute() override
     {
-        Process temp;
+        bool flagPriority = false;
         std::vector<Process *> processes = _processes;
         std::sort(processes.begin(), processes.end(), [](Process *a, Process *b)
                   { return a->arrivalTime < b->arrivalTime; });
+
         currentProcessOnCPU = nullptr;
         currentProcessOnR = nullptr;
         int currentTime = 0;
-
         while (!isTerminated(processes, _readyQueue, _blockedQueue))
         {
-            std::cout << "aaa";
-            if (_readyQueue.size() == 0)
+            std::cout << "Time: " << currentTime << std::endl;
+            if (flagPriority == false)
             {
                 for (int i = 0; i < processes.size(); i++)
                 {
@@ -33,12 +43,13 @@ public:
                     {
                         _readyQueue.push_back(processes[i]);
                     }
-                    else if (processes[i]->arrivalTime > currentTime)
-                    {
-                        break;
-                    }
                 }
             }
+            else
+            {
+                flagPriority = false;
+            }
+
             if (currentProcessOnCPU == nullptr && _readyQueue.size() != 0)
             {
                 currentProcessOnCPU = _readyQueue.front();
@@ -55,7 +66,7 @@ public:
             if (currentProcessOnCPU != nullptr)
             {
                 _CPU.push_back(currentProcessOnCPU);
-                currentProcessOnCPU->run();
+                currentProcessOnCPU->runCPU();
 
                 if (currentProcessOnCPU->CPUBurst[0] == 0)
                 {
@@ -72,14 +83,7 @@ public:
                         if (currentProcessOnCPU->CPUBurst.size() == 0)
                         {
                             // delete process from the list processes
-                            for (int i = 0; i < processes.size(); i++)
-                            {
-                                if (processes[i]->ID == currentProcessOnCPU->ID)
-                                {
-                                    processes.erase(processes.begin() + i);
-                                    break;
-                                }
-                            }
+                            deleteProcess(processes, currentProcessOnCPU);
                         }
                     }
                     currentProcessOnCPU = nullptr;
@@ -92,8 +96,8 @@ public:
 
             if (currentProcessOnR != nullptr)
             {
-                _blockedQueue.push_back(currentProcessOnR);
-                currentProcessOnR->run();
+                _R.push_back(currentProcessOnR);
+                currentProcessOnR->runR();
                 if (currentProcessOnR->resourceBurst[0] == 0)
                 {
                     currentProcessOnR->resourceBurst.erase(currentProcessOnR->resourceBurst.begin());
@@ -106,12 +110,11 @@ public:
                             {
                                 _readyQueue.push_back(processes[i]);
                             }
-                            else if (processes[i]->arrivalTime > currentTime + 1)
-                            {
-                                break;
-                            }
                         }
                         _readyQueue.push_back(currentProcessOnR);
+
+                        flagPriority = true;
+
                         currentProcessOnR->startReadyQueue = currentTime + 1;
                     }
                     else
@@ -120,14 +123,7 @@ public:
                         if (currentProcessOnR->resourceBurst.size() == 0)
                         {
                             // delete process from the list processes
-                            for (int i = 0; i < processes.size(); i++)
-                            {
-                                if (processes[i]->ID == currentProcessOnR->ID)
-                                {
-                                    processes.erase(processes.begin() + i);
-                                    break;
-                                }
-                            }
+                            deleteProcess(processes, currentProcessOnR);
                         }
                     }
                     currentProcessOnR = nullptr;
