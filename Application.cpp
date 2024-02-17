@@ -17,10 +17,10 @@ void Application::run(char* source, char* destination) {
         
         break;
     case 3:
-        // scheduler = new SJF(input);
+        scheduler = new SJF(input);
         break;
     case 4:
-        // scheduler = new SRTN(input);
+        scheduler = new SRTN(input);
         break;
     default:
         std::cerr << "Unknown algorithm ID." << std::endl;

@@ -2,131 +2,186 @@
 
 SRTN::SRTN() {}
 
-SRTN::SRTN(InputHandler &input) : Scheduler(input.processes) {}
+SRTN::SRTN(InputHandler &input) : Scheduler(input.processes, input.timeQuantum) {}
 
 // insertion sort
-void SRTN::insertionSort(std::vector<Process*>& readyQueue, int currentTime) {
+void SRTN::insertionSort(std::vector<Process *> &readyQueue, int currentTime)
+{
     int n = readyQueue.size();
-    for (int i = 1; i < n; ++i) {
+    for (int i = 1; i < n; ++i)
+    {
         Process* key = readyQueue[i];
         int j = i - 1;
 
-        while (j >= 0 && readyQueue[j]->CPUBurst[CPU_BURST_INDEX] > key->CPUBurst[CPU_BURST_INDEX]) {
+        while (j >= 0 && readyQueue[j]->CPUBurst[CPU_BURST_INDEX] >= key->CPUBurst[CPU_BURST_INDEX])
+        {
             readyQueue[j + 1] = readyQueue[j];
             j = j - 1;
         }
 
-        // check priority
-        while (j >= 0 && readyQueue[j]->CPUBurst[CPU_BURST_INDEX] == key->CPUBurst[CPU_BURST_INDEX] && !readyQueue[j]->isPriority) {
-            readyQueue[j]->isWaiting = true;
-            readyQueue[j]->startReadyQueue = currentTime;
-            readyQueue[j + 1] = readyQueue[j];
-            j = j - 1;
-        }
         readyQueue[j + 1] = key;
     }
 }
 
-// void printReadyQueue(const std::vector<Process*>& readyQueue) {
-//     std::cout << "Ready Queue Information:\n";
-//     std::cout << "-----------------------------------------\n";
+void SRTN::deleteProcess(std::vector<Process *> &processes, Process *process)
+{
+    for (int i = 0; i < processes.size(); i++)
+    {
+        if (processes[i]->ID == process->ID)
+        {
+            processes.erase(processes.begin() + i);
+            break;
+        }
+    }
+}
 
-//     for (const auto& process : readyQueue) {
-//         std::cout << process->ID << " - " << process->CPUBurst[0] << std::endl;
-//         std::cout << "\n";
-//     }
-// }
+void printReadyQueue1(const std::vector<Process *> &readyQueue)
+{
+    std::cout << "Ready Queue Information:\n";
 
-void SRTN::execute() {
+    for (int i = 0; i < readyQueue.size(); ++i)
+    {
+        std::cout << readyQueue[i]->ID << " - " << readyQueue[i]->CPUBurst[0] << std::endl;
+    }
+    std::cout << "-----------------------------------------\n";
+}
+
+void SRTN::execute()
+{
+    bool isPriority = false;
+    std::vector<Process* > processes = _processes;
+
+    std::sort(processes.begin(), processes.end(), [](Process *a, Process *b)
+              { return a->arrivalTime < b->arrivalTime; });
+
+    currentProcessOnCPU = nullptr;
+    currentProcessOnR = nullptr;
     int currentTime = 0;
-    std::vector<Process*> currentProcesses = _processes;
 
-    // sort processes with increasing arrival time
-    std::sort(currentProcesses.begin(), currentProcesses.end(), [](const Process* a, const Process* b) {
-        return a->arrivalTime < b->arrivalTime;
-    });
-
-    while ( true ) {
-        while (!currentProcesses.empty() && currentProcesses.front()->arrivalTime == currentTime) {
-            _readyQueue.push_back(currentProcesses.front());
-            currentProcesses.front()->isWaiting = true;
-            currentProcesses.erase(currentProcesses.begin());
+    while (!isTerminated(processes, _readyQueue, _blockedQueue))
+    {
+        if (!isPriority)
+        {
+            for (int i = 0; i < processes.size(); ++i)
+            {
+                if (processes[i]->arrivalTime == currentTime)
+                {
+                    processes[i]->startReadyQueue = currentTime;
+                    _readyQueue.push_back(processes[i]);
+                }
+            }
+        }
+        else
+        {
+            isPriority = false;
         }
 
-        // sort priority
         insertionSort(_readyQueue, currentTime);
 
-        // printReadyQueue(_readyQueue);
-
-        int currentID = 0;
-        if (!_readyQueue.empty()) {
-            Process* currentProcess = _readyQueue.front();
-            currentProcess->isPriority = false;
+        // get process from readyQueue
+        if (currentProcessOnCPU == nullptr && _readyQueue.size() != 0)
+        {
+            currentProcessOnCPU = _readyQueue.front();
+            _readyQueue.erase(_readyQueue.begin());
 
             // calculate waiting time
-            if (currentProcess->isWaiting) {
-                currentProcess->waitingTime += (currentTime - currentProcess->startReadyQueue);
-                currentProcess->isWaiting = false;
-            }
+            currentProcessOnCPU->waitingTime += currentTime - currentProcessOnCPU->startReadyQueue;
+        }
 
-            currentProcess->CPUBurst[CPU_BURST_INDEX]--;
-            currentID = currentProcess->ID;
-            _CPU.push_back(currentProcess->ID);
+        // get process from blockQueue
+        if (currentProcessOnR == nullptr && _blockedQueue.size() != 0)
+        {
+            currentProcessOnR = _blockedQueue.front();
+            _blockedQueue.erase(_blockedQueue.begin());
+        }
 
-            if (currentProcess->CPUBurst[CPU_BURST_INDEX] == 0) {
-                currentProcess->CPUBurst.erase(currentProcess->CPUBurst.begin());
-
-                if (!currentProcess->resourceBurst.empty()) {
-                    _blockedQueue.push(currentProcess);
-                }
+        // execute on CPU
+        if (currentProcessOnCPU != nullptr)
+        {
+            if (!_readyQueue.empty() && currentProcessOnCPU->CPUBurst[0] >= _readyQueue.front()->CPUBurst[0])
+            {
+                currentProcessOnCPU->startReadyQueue = currentTime;
+                _readyQueue.push_back(currentProcessOnCPU);
+                currentProcessOnCPU = _readyQueue.front();
                 _readyQueue.erase(_readyQueue.begin());
             }
 
-            // calculate turnaround time 
-            if (currentProcess->resourceBurst.empty() && currentProcess->CPUBurst.empty()) {
-                currentProcess->turnAroundTime = (currentTime + 1) - currentProcess->arrivalTime;
-            }
-        }
-        else {
-            _CPU.push_back(-1);
-        }
+            _CPU.push_back(currentProcessOnCPU);
+            currentProcessOnCPU->CPUBurst.front()--;
 
-        if (!_blockedQueue.empty()) {
-            Process* currentProcess = _blockedQueue.front();
+            if (currentProcessOnCPU->CPUBurst[0] == 0)
+            {
+                // remove CPU burst done
+                currentProcessOnCPU->CPUBurst.erase(currentProcessOnCPU->CPUBurst.begin());
 
-            if (currentID == currentProcess->ID) {
-                _R.push_back(-1);
-                ++currentTime;
-                continue;
-            }
-
-            currentProcess->resourceBurst[CPU_BURST_INDEX]--;
-            _R.push_back(currentProcess->ID);
-
-            if (currentProcess->resourceBurst[CPU_BURST_INDEX] == 0) {
-                currentProcess->resourceBurst.erase(currentProcess->resourceBurst.begin());
-
-                if (!currentProcess->CPUBurst.empty()) {
-                    _readyQueue.push_back(currentProcess);
-                    currentProcess->startReadyQueue = (currentTime + 1);
-                    currentProcess->isWaiting = true;
+                // if process has resource burst
+                if (currentProcessOnCPU->resourceBurst.size() != 0)
+                {
+                    _blockedQueue.push_back(currentProcessOnCPU);
                 }
-                _blockedQueue.pop();
-            }
+                else
+                {
+                    // calculate turn around time
+                    currentProcessOnCPU->turnAroundTime = (currentTime + 1) - currentProcessOnCPU->arrivalTime;
 
-            // calculate turnaround time 
-            if (currentProcess->resourceBurst.empty() && currentProcess->CPUBurst.empty()) {
-                currentProcess->turnAroundTime = (currentTime + 1) - currentProcess->arrivalTime;
+                    if (currentProcessOnCPU->CPUBurst.size() == 0)
+                    {
+                        // delete process from the list processes
+                        deleteProcess(processes, currentProcessOnCPU);
+                    }
+                }
+                currentProcessOnCPU = nullptr;
             }
         }
-        else {
-            _R.push_back(-1);
+        else
+        {
+            _CPU.push_back(&temp);
+        }
+
+        // execute on R
+        if (currentProcessOnR != nullptr)
+        {
+            _R.push_back(currentProcessOnR);
+            currentProcessOnR->resourceBurst.front()--;
+
+            if (currentProcessOnR->resourceBurst[0] == 0)
+            {
+                currentProcessOnR->resourceBurst.erase(currentProcessOnR->resourceBurst.begin());
+
+                if (currentProcessOnR->CPUBurst.size() != 0)
+                {
+                    for (int i = 0; i < processes.size(); ++i)
+                    {
+                        if (processes[i]->arrivalTime == (currentTime + 1))
+                        {
+                            processes[i]->startReadyQueue = currentTime + 1;
+                            _readyQueue.push_back(processes[i]);
+                        }
+                    }
+                    
+                    currentProcessOnR->startReadyQueue = currentTime + 1;
+                    _readyQueue.push_back(currentProcessOnR);
+
+                    isPriority = true;
+                }
+                else
+                {
+                    // calculate turn around time
+                    currentProcessOnR->turnAroundTime = (currentTime + 1) - currentProcessOnR->arrivalTime;
+                    if (currentProcessOnR->resourceBurst.size() == 0)
+                    {
+                        // delete process from the list processes
+                        deleteProcess(processes, currentProcessOnR);
+                    }
+                }
+                currentProcessOnR = nullptr;
+            }
+        }
+        else
+        {
+            _R.push_back(&temp);
         }
 
         ++currentTime;
-
-        if (isTerminatedAll(currentProcesses, _readyQueue, _blockedQueue)) {
-            break;
-        }
     }
 }

@@ -14,7 +14,12 @@ public:
     void execute() override;
 
 private:
-    void insertionSort(std::vector<Process*>& readyQueue, int currentTime) override;
+    Process* currentProcessOnCPU;
+    Process* currentProcessOnR;
+
+    void deleteProcess(std::vector<Process *> &processes, Process *process);
+
+    void insertionSort(std::vector<Process*>& readyQueue, int currentTime);
 };
 
 #endif
