@@ -14,7 +14,7 @@ void Application::run(char* source, char* destination) {
         scheduler = new FCFS(input);
         break;
     case 2:
-        
+        scheduler  = new RR(input);
         break;
     case 3:
         scheduler = new SJF(input);
