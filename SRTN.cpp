@@ -4,6 +4,17 @@ SRTN::SRTN() {}
 
 SRTN::SRTN(InputHandler &input) : Scheduler(input.processes, input.timeQuantum) {}
 
+void printReadyQueue1(const std::vector<Process *> &readyQueue)
+{
+    std::cout << "Ready Queue Information:\n";
+
+    for (int i = 0; i < readyQueue.size(); ++i)
+    {
+        std::cout << readyQueue[i]->ID << " - " << readyQueue[i]->CPUBurst[0] << std::endl;
+    }
+    std::cout << "-----------------------------------------\n";
+}
+
 // insertion sort
 void SRTN::insertionSort(std::vector<Process *> &readyQueue, int currentTime)
 {
@@ -33,17 +44,6 @@ void SRTN::deleteProcess(std::vector<Process *> &processes, Process *process)
             break;
         }
     }
-}
-
-void printReadyQueue1(const std::vector<Process *> &readyQueue)
-{
-    std::cout << "Ready Queue Information:\n";
-
-    for (int i = 0; i < readyQueue.size(); ++i)
-    {
-        std::cout << readyQueue[i]->ID << " - " << readyQueue[i]->CPUBurst[0] << std::endl;
-    }
-    std::cout << "-----------------------------------------\n";
 }
 
 void SRTN::execute()
@@ -104,6 +104,9 @@ void SRTN::execute()
                 _readyQueue.push_back(currentProcessOnCPU);
                 currentProcessOnCPU = _readyQueue.front();
                 _readyQueue.erase(_readyQueue.begin());
+
+                // calculate waiting time 
+                currentProcessOnCPU->waitingTime += currentTime - currentProcessOnCPU->startReadyQueue;
             }
 
             _CPU.push_back(currentProcessOnCPU);
@@ -154,7 +157,7 @@ void SRTN::execute()
                     {
                         if (processes[i]->arrivalTime == (currentTime + 1))
                         {
-                            processes[i]->startReadyQueue = currentTime + 1;
+                            // processes[i]->startReadyQueue = currentTime + 1;
                             _readyQueue.push_back(processes[i]);
                         }
                     }
