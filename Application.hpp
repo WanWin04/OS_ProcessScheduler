@@ -4,6 +4,7 @@
 #include "InputHandler.hpp"
 #include "Scheduler.hpp"
 #include "SJF.hpp"
+#include "RR.hpp"
 #include "SRTN.hpp"
 #include "FCFS.hpp"
 
