@@ -13,7 +13,6 @@ public:
     int ID;
     int arrivalTime;
 
-    bool isWaiting; // waiting on ready queue
     bool isPriority; // store state of process is old
     int startReadyQueue; // time index of ready queue
 

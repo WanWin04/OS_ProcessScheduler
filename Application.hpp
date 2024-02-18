@@ -3,8 +3,8 @@
 
 #include "InputHandler.hpp"
 #include "Scheduler.hpp"
-// #include "SJF.hpp"
-// #include "SRTN.hpp"
+#include "SJF.hpp"
+#include "SRTN.hpp"
 #include "FCFS.hpp"
 
 #include <iostream>
