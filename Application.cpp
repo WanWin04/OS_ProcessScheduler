@@ -2,19 +2,21 @@
 
 Application::Application() {}
 
-void Application::run(char* source, char* destination) {
+void Application::run(char *source, char *destination)
+{
     InputHandler input(source);
 
     int algorithmID = input.algorithmID;
 
-    Scheduler* scheduler = nullptr;
+    Scheduler *scheduler = nullptr;
 
-    switch (algorithmID) {
+    switch (algorithmID)
+    {
     case 1:
         scheduler = new FCFS(input);
         break;
     case 2:
-        scheduler  = new RR(input);
+        scheduler = new RR(input);
         break;
     case 3:
         scheduler = new SJF(input);
@@ -27,7 +29,8 @@ void Application::run(char* source, char* destination) {
         return;
     }
 
-    if (scheduler) {
+    if (scheduler)
+    {
         scheduler->execute();
         scheduler->exportData(destination);
         std::cout << "Build Successfully!" << std::endl;

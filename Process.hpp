@@ -5,7 +5,8 @@
 #include <cmath>
 #include <algorithm>
 
-class Process {
+class Process
+{
 public:
     Process();
     ~Process();
@@ -13,19 +14,13 @@ public:
     int ID;
     int arrivalTime;
 
-    bool isPriority; // store state of process is old
     int startReadyQueue; // time index of ready queue
 
-    std::vector<int> CPUBurst; // store CPU bursts
+    std::vector<int> CPUBurst;      // store CPU bursts
     std::vector<int> resourceBurst; // store resource bursts
 
     int turnAroundTime;
-    int waitingTime; 
-
-    void run() {
-        CPUBurst.front()--;
-        isPriority = false;
-    }
+    int waitingTime;
 };
 
 #endif

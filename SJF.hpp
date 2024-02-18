@@ -4,7 +4,8 @@
 #include "Scheduler.hpp"
 #include "InputHandler.hpp"
 
-class SJF : public Scheduler {
+class SJF : public Scheduler
+{
 public:
     SJF();
     SJF(InputHandler &input);
@@ -12,12 +13,11 @@ public:
     void execute() override;
 
 private:
-    Process* currentProcessOnCPU;
-    Process* currentProcessOnR;
+    Process *currentProcessOnCPU;
+    Process *currentProcessOnR;
 
-    void deleteProcess(std::vector<Process *> &processes, Process *process);
-
-    void insertionSort(std::vector<Process*>& readyQueue, int currentTime);
+    // function to arrange processes in ready queue
+    void sortReadyQueue(std::vector<Process *> &readyQueue, int currentTime);
 };
 
 #endif

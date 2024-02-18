@@ -10,11 +10,12 @@
 
 #include <iostream>
 
-class Application {
+class Application
+{
 public:
     Application();
 
-    void run(char* source, char* destination);
+    void run(char *source, char *destination);
 };
 
 #endif

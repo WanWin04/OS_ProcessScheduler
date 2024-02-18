@@ -8,17 +8,7 @@ class FCFS : public Scheduler
 private:
     Process *currentProcessOnCPU;
     Process *currentProcessOnR;
-    void deleteProcess(std::vector<Process *> &processes, Process *process)
-    {
-        for (int i = 0; i < processes.size(); i++)
-        {
-            if (processes[i]->ID == process->ID)
-            {
-                processes.erase(processes.begin() + i);
-                break;
-            }
-        }
-    }
+    
 public:
     FCFS() {}
     FCFS(InputHandler &input) : Scheduler(input.processes, input.timeQuantum) {}
