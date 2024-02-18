@@ -23,17 +23,35 @@ void Scheduler::exportData(const std::string &filename)
 
     ofs << std::endl;
 
+    std::string line;
+
     for (int i = 0; i < _R.size(); ++i)
     {
         if (_R[i]->ID == 0)
         {
-            ofs << "_";
+            line += "_";
         }
         else
         {
-            ofs << _R[i]->ID;
+            line += std::to_string(_R[i]->ID);
         }
-        ofs << " ";
+        line += " ";
+    }
+
+    int index = 0;
+    for (int i = line.size() - 1; i >= 0; --i) {
+        if (line[i] != '_' && line[i] != ' ') {
+            index = i;
+            break;
+        }
+    }
+
+    line.erase(index + 1);
+
+    if (!line.empty()) {
+        ofs << line;
+    } else {
+        std::cerr << "ERROR";
     }
 
     ofs << std::endl;

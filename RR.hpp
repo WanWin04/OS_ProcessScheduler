@@ -37,11 +37,11 @@ public:
 
         while (!isTerminated(processes, _readyQueue, _blockedQueue))
         {
-            std::cout << "Time " << currentTime << ":\n";
+            // std::cout << "Time " << currentTime << ":\n";
             // add process to ready queue
             if (flagPriority == false)
             {
-                std::cout << "Not priority\n";
+                // std::cout << "Not priority\n";
                 for (int i = 0; i < processes.size(); i++)
                 {
                     if (processes[i]->arrivalTime == currentTime)
@@ -58,20 +58,20 @@ public:
             // chose process from ready queue
             if (currentProcessOnCPU == nullptr && _readyQueue.size() != 0)
             {
-                std::cout << "Chose process from ready queue\n";
+                // std::cout << "Chose process from ready queue\n";
                 currentProcessOnCPU = _readyQueue.front();
                 _readyQueue.erase(_readyQueue.begin());
                 currentProcessOnCPU->waitingTime += currentTime - currentProcessOnCPU->startReadyQueue;
-                std::cout << "CPU: Process " << currentProcessOnCPU->ID << " is chosen\n";
+                // std::cout << "CPU: Process " << currentProcessOnCPU->ID << " is chosen\n";
             }
 
             // chose process from blocked queue
             if (currentProcessOnR == nullptr && _blockedQueue.size() != 0)
             {
-                std::cout << "Chose process from blocked queue\n";
+                // std::cout << "Chose process from blocked queue\n";
                 currentProcessOnR = _blockedQueue.front();
                 _blockedQueue.erase(_blockedQueue.begin());
-                std::cout << "R: Process " << currentProcessOnR->ID << " is chosen\n";
+                // std::cout << "R: Process " << currentProcessOnR->ID << " is chosen\n";
             }
 
             // process on CPU
@@ -160,7 +160,7 @@ public:
             }
 
             currentTime++;
-            std::cout << "\n";
+            // std::cout << "\n";
         }
     }
 };
