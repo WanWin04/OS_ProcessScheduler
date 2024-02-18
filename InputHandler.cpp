@@ -45,12 +45,15 @@ void InputHandler::readInput(const std::string& filename) {
         int temp;
         int index = 0;
         while (ss >> temp) {
+            if (temp == 0) {
+                std::cout << "Error: Invalid input" << std::endl;
+                break;
+            } 
             if (index % 2 == 0) {
                 process->CPUBurst.push_back(temp);
             } else {
                 process->resourceBurst.push_back(temp);
             }
-            
             ++index;
         }
 
