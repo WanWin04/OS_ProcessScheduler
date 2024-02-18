@@ -4,26 +4,13 @@ SJF::SJF() : Scheduler() {}
 
 SJF::SJF(InputHandler &input) : Scheduler(input.processes, input.timeQuantum) {}
 
-// deleta process from processes
-void SJF::deleteProcess(std::vector<Process *> &processes, Process *process)
-{
-    for (int i = 0; i < processes.size(); i++)
-    {
-        if (processes[i]->ID == process->ID)
-        {
-            processes.erase(processes.begin() + i);
-            break;
-        }
-    }
-}
-
 // insertion sort
-void SJF::insertionSort(std::vector<Process *> &readyQueue, int currentTime)
+void SJF::sortReadyQueue(std::vector<Process *> &readyQueue, int currentTime)
 {
     int n = readyQueue.size();
     for (int i = 1; i < n; ++i)
     {
-        Process* key = readyQueue[i];
+        Process *key = readyQueue[i];
         int j = i - 1;
 
         while (j >= 0 && readyQueue[j]->CPUBurst[CPU_BURST_INDEX] >= key->CPUBurst[CPU_BURST_INDEX])
@@ -36,23 +23,12 @@ void SJF::insertionSort(std::vector<Process *> &readyQueue, int currentTime)
     }
 }
 
-void printReadyQueue(const std::vector<Process *> &readyQueue)
-{
-    std::cout << "Ready Queue Information:\n";
-    std::cout << "-----------------------------------------\n";
-
-    for (const auto &process : readyQueue)
-    {
-        std::cout << process->ID << " - " << process->CPUBurst[0] << std::endl;
-        std::cout << "\n";
-    }
-}
-
 void SJF::execute()
 {
     bool isPriority = false;
     std::vector<Process *> processes = _processes;
 
+    // sort processes by arrival time
     std::sort(processes.begin(), processes.end(), [](Process *a, Process *b)
               { return a->arrivalTime < b->arrivalTime; });
 
@@ -71,14 +47,16 @@ void SJF::execute()
                     _readyQueue.push_back(processes[i]);
                 }
             }
-            insertionSort(_readyQueue, currentTime);
+
+            // sort readyQueue 
+            sortReadyQueue(_readyQueue, currentTime);
         }
         else
         {
             isPriority = false;
         }
 
-
+        // get process from readyQueue
         if (currentProcessOnCPU == nullptr && _readyQueue.size() != 0)
         {
             currentProcessOnCPU = _readyQueue.front();
@@ -88,12 +66,14 @@ void SJF::execute()
             currentProcessOnCPU->waitingTime += currentTime - currentProcessOnCPU->startReadyQueue;
         }
 
+        // get process from blockQueue
         if (currentProcessOnR == nullptr && _blockedQueue.size() != 0)
         {
             currentProcessOnR = _blockedQueue.front();
             _blockedQueue.erase(_blockedQueue.begin());
         }
 
+        // execute on CPU 
         if (currentProcessOnCPU != nullptr)
         {
             _CPU.push_back(currentProcessOnCPU);
@@ -124,6 +104,7 @@ void SJF::execute()
         }
         else
         {
+            // CPU is empty 
             _CPU.push_back(&temp);
         }
 
@@ -145,11 +126,11 @@ void SJF::execute()
                             _readyQueue.push_back(processes[i]);
                         }
                     }
+
                     _readyQueue.push_back(currentProcessOnR);
+                    currentProcessOnR->startReadyQueue = currentTime + 1;
 
                     isPriority = true;
-
-                    currentProcessOnR->startReadyQueue = currentTime + 1;
                 }
                 else
                 {
@@ -166,6 +147,7 @@ void SJF::execute()
         }
         else
         {
+            // R is empty 
             _R.push_back(&temp);
         }
 

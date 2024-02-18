@@ -10,17 +10,18 @@
 
 #include "Process.hpp"
 
-class InputHandler {
+class InputHandler
+{
 public:
     int algorithmID;
     int timeQuantum; // time quantum for Round Robin algorithm
-    std::vector<Process*> processes;
+    std::vector<Process *> processes;
 
     InputHandler();
-    InputHandler(const std::string& filename);
+    InputHandler(const std::string &filename);
     ~InputHandler();
 
-    void readInput(const std::string& filename);
+    void readInput(const std::string &filename);
 };
 
 #endif

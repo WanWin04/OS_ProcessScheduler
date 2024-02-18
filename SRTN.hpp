@@ -6,7 +6,8 @@
 #include "Scheduler.hpp"
 #include "InputHandler.hpp"
 
-class SRTN : public Scheduler {
+class SRTN : public Scheduler
+{
 public:
     SRTN();
     SRTN(InputHandler &input);
@@ -14,12 +15,11 @@ public:
     void execute() override;
 
 private:
-    Process* currentProcessOnCPU;
-    Process* currentProcessOnR;
+    Process *currentProcessOnCPU;
+    Process *currentProcessOnR;
 
-    void deleteProcess(std::vector<Process *> &processes, Process *process);
-
-    void insertionSort(std::vector<Process*>& readyQueue, int currentTime);
+    // function to arrange processes in ready queue
+    void sortReadyQueue(std::vector<Process *> &readyQueue, int currentTime);
 };
 
 #endif

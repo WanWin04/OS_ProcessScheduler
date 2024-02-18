@@ -4,6 +4,18 @@ Scheduler::Scheduler() {}
 
 Scheduler::Scheduler(std::vector<Process *> processes, int timeQuantum) : _processes(processes), timeQuantum(timeQuantum) {}
 
+void Scheduler::deleteProcess(std::vector<Process *> &processes, Process *process)
+{
+    for (int i = 0; i < processes.size(); i++)
+    {
+        if (processes[i]->ID == process->ID)
+        {
+            processes.erase(processes.begin() + i);
+            break;
+        }
+    }
+}
+
 void Scheduler::exportData(const std::string &filename)
 {
     std::ofstream ofs(filename);
@@ -39,8 +51,10 @@ void Scheduler::exportData(const std::string &filename)
     }
 
     int index = 0;
-    for (int i = line.size() - 1; i >= 0; --i) {
-        if (line[i] != '_' && line[i] != ' ') {
+    for (int i = line.size() - 1; i >= 0; --i)
+    {
+        if (line[i] != '_' && line[i] != ' ')
+        {
             index = i;
             break;
         }
@@ -48,10 +62,13 @@ void Scheduler::exportData(const std::string &filename)
 
     line.erase(index + 1);
 
-    if (!line.empty()) {
+    if (!line.empty())
+    {
         ofs << line;
-    } else {
-        std::cerr << "ERROR";
+    }
+    else
+    {
+        std::cerr << "R is empty!";
     }
 
     ofs << std::endl;
