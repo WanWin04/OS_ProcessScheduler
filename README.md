@@ -43,7 +43,7 @@ To run the project, follow one of these methods:
 1. Build the project:
 
 ```bash
-g++ *.cpp -o MSSV1_MSSV2
+g++ ./src/*.cpp -o MSSV1_MSSV2
 ```
 
 2. Run the project:
