@@ -6,13 +6,11 @@ RR::RR(InputHandler &input) : Scheduler(input.processes, input.timeQuantum) {}
 
 void RR::execute()
 {
-    bool flagPriority = false;
+    std::vector<Process *> tempReadyQueue; // use to handle priority
     std::vector<Process *> processes = _processes;
     std::sort(processes.begin(), processes.end(), [](Process *a, Process *b)
               { return a->arrivalTime < b->arrivalTime; });
 
-    currentProcessOnCPU = nullptr;
-    currentProcessOnR = nullptr;
     int currentTime = 0;
     int quantum = timeQuantum;
 
@@ -20,21 +18,28 @@ void RR::execute()
     {
         // std::cout << "Time " << currentTime << ":\n";
         // add process to ready queue
-        if (flagPriority == false)
+        // if (flagPriority == false)
+        // {
+        //     // std::cout << "Not priority\n";
+        for (int i = 0; i < processes.size(); i++)
         {
-            // std::cout << "Not priority\n";
-            for (int i = 0; i < processes.size(); i++)
+            if (processes[i]->arrivalTime == currentTime)
             {
-                if (processes[i]->arrivalTime == currentTime)
-                {
-                    _readyQueue.push_back(processes[i]);
-                }
+                _readyQueue.push_back(processes[i]);
             }
         }
-        else
+        // }
+        // else
+        // {
+        //     flagPriority = false;
+        // }
+
+        std::reverse(tempReadyQueue.begin(), tempReadyQueue.end());
+        for (int i = 0; i < tempReadyQueue.size(); i++)
         {
-            flagPriority = false;
+            _readyQueue.push_back(tempReadyQueue[i]);
         }
+        tempReadyQueue.clear();
 
         // chose process from ready queue
         if (currentProcessOnCPU == nullptr && _readyQueue.size() != 0)
@@ -89,16 +94,7 @@ void RR::execute()
             }
             if (currentProcessOnCPU != nullptr && quantum == 0)
             {
-                // handle priority
-                for (int i = 0; i < processes.size(); i++)
-                {
-                    if (processes[i]->arrivalTime == currentTime + 1)
-                    {
-                        _readyQueue.push_back(processes[i]);
-                    }
-                }
-                flagPriority = true;
-                _readyQueue.push_back(currentProcessOnCPU);
+                tempReadyQueue.push_back(currentProcessOnCPU);
                 currentProcessOnCPU->startReadyQueue = currentTime + 1;
                 currentProcessOnCPU = nullptr;
                 quantum = timeQuantum;
@@ -120,7 +116,7 @@ void RR::execute()
 
                 if (currentProcessOnR->CPUBurst.size() != 0)
                 {
-                    _readyQueue.push_back(currentProcessOnR);
+                    tempReadyQueue.push_back(currentProcessOnR);
                     currentProcessOnR->startReadyQueue = currentTime + 1;
                 }
                 else

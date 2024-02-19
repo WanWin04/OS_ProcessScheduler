@@ -2,7 +2,11 @@
 
 Scheduler::Scheduler() {}
 
-Scheduler::Scheduler(std::vector<Process *> processes, int timeQuantum) : _processes(processes), timeQuantum(timeQuantum) {}
+Scheduler::Scheduler(std::vector<Process *> processes, int timeQuantum) : _processes(processes), timeQuantum(timeQuantum) {
+    currentProcessOnCPU = nullptr;
+    currentProcessOnR = nullptr;
+    flagPriority = false;
+}
 
 void Scheduler::deleteProcess(std::vector<Process *> &processes, Process *process)
 {

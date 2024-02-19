@@ -25,20 +25,17 @@ void SRTN::sortReadyQueue(std::vector<Process *> &readyQueue, int currentTime)
 
 void SRTN::execute()
 {
-    bool isPriority = false;
     std::vector<Process *> processes = _processes;
 
     // sort processes by arrival time
     std::sort(processes.begin(), processes.end(), [](Process *a, Process *b)
               { return a->arrivalTime < b->arrivalTime; });
 
-    currentProcessOnCPU = nullptr;
-    currentProcessOnR = nullptr;
     int currentTime = 0;
 
     while (!isTerminated(processes, _readyQueue, _blockedQueue))
     {
-        if (!isPriority)
+        if (!flagPriority)
         {
             for (int i = 0; i < processes.size(); ++i)
             {
@@ -51,7 +48,7 @@ void SRTN::execute()
         }
         else
         {
-            isPriority = false;
+            flagPriority = false;
         }
 
         // sort readyQueue
@@ -145,7 +142,7 @@ void SRTN::execute()
                     currentProcessOnR->startReadyQueue = currentTime + 1;
                     _readyQueue.push_back(currentProcessOnR);
 
-                    isPriority = true;
+                    flagPriority = true;
                 }
                 else
                 {

@@ -6,13 +6,9 @@ FCFS::FCFS(InputHandler &input) : Scheduler(input.processes, input.timeQuantum) 
 
 void FCFS::execute()
 {
-    bool flagPriority = false;
     std::vector<Process *> processes = _processes;
     std::sort(processes.begin(), processes.end(), [](Process *a, Process *b)
               { return a->arrivalTime < b->arrivalTime; });
-
-    currentProcessOnCPU = nullptr;
-    currentProcessOnR = nullptr;
     
     int currentTime = 0;
     while (!isTerminated(processes, _readyQueue, _blockedQueue))

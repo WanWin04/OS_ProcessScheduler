@@ -25,20 +25,17 @@ void SJF::sortReadyQueue(std::vector<Process *> &readyQueue, int currentTime)
 
 void SJF::execute()
 {
-    bool isPriority = false;
     std::vector<Process *> processes = _processes;
 
     // sort processes by arrival time
     std::sort(processes.begin(), processes.end(), [](Process *a, Process *b)
               { return a->arrivalTime < b->arrivalTime; });
 
-    currentProcessOnCPU = nullptr;
-    currentProcessOnR = nullptr;
     int currentTime = 0;
 
     while (!isTerminated(processes, _readyQueue, _blockedQueue))
     {
-        if (!isPriority)
+        if (!flagPriority)
         {
             for (int i = 0; i < processes.size(); ++i)
             {
@@ -53,7 +50,7 @@ void SJF::execute()
         }
         else
         {
-            isPriority = false;
+            flagPriority = false;
         }
 
         // get process from readyQueue
@@ -130,7 +127,7 @@ void SJF::execute()
                     _readyQueue.push_back(currentProcessOnR);
                     currentProcessOnR->startReadyQueue = currentTime + 1;
 
-                    isPriority = true;
+                    flagPriority = true;
                 }
                 else
                 {

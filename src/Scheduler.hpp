@@ -16,7 +16,8 @@ class Scheduler
 public:
     Process *currentProcessOnCPU;
     Process *currentProcessOnR;
-    
+    bool flagPriority;
+
     Scheduler();
     Scheduler(std::vector<Process *> processes, int timeQuantum);
 
