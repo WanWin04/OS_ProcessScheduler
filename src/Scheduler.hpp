@@ -16,8 +16,6 @@ class Scheduler
 public:
     Process *currentProcessOnCPU;
     Process *currentProcessOnR;
-    bool flagPriority; // used to handle priority in FCFS and SJF
-
     Scheduler();
     Scheduler(std::vector<Process *> processes, int timeQuantum);
 
@@ -30,6 +28,8 @@ public:
 protected:
     Process emptyProcess;
     int timeQuantum;
+
+    Process *IOreturn; // used to handle priority in FCFS and SJF
     std::vector<Process *> _processes;
     std::vector<Process *> _readyQueue;
     std::vector<Process *> _blockedQueue;

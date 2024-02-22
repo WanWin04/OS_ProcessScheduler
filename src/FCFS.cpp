@@ -14,19 +14,17 @@ void FCFS::execute()
     while (!isTerminated(processes, _readyQueue, _blockedQueue))
     {
         // add process into ready queue
-        if (flagPriority == false)
+        for (int i = 0; i < processes.size(); i++)
         {
-            for (int i = 0; i < processes.size(); i++)
+            if (processes[i]->arrivalTime == currentTime)
             {
-                if (processes[i]->arrivalTime == currentTime)
-                {
-                    _readyQueue.push_back(processes[i]);
-                }
+                _readyQueue.push_back(processes[i]);
             }
         }
-        else
+        if (IOreturn != nullptr)
         {
-            flagPriority = false;
+            _readyQueue.push_back(IOreturn);
+            IOreturn = nullptr;
         }
 
         // choose process from Ready Queue
@@ -87,17 +85,7 @@ void FCFS::execute()
 
                 if (currentProcessOnR->CPUBurst.size() != 0)
                 {
-                    for (int i = 0; i < processes.size(); i++)
-                    {
-                        if (processes[i]->arrivalTime == currentTime + 1)
-                        {
-                            _readyQueue.push_back(processes[i]);
-                        }
-                    }
-                    _readyQueue.push_back(currentProcessOnR);
-
-                    flagPriority = true;
-
+                    IOreturn = currentProcessOnR;
                     currentProcessOnR->startReadyQueue = currentTime + 1;
                 }
                 else

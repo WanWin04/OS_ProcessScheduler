@@ -25,7 +25,6 @@ void SRTN::sortReadyQueue(std::vector<Process *> &readyQueue, int currentTime)
 
 void SRTN::execute()
 {
-    std::vector<Process *> tempReadyQueue;
     std::vector<Process *> processes = _processes;
 
     // sort processes by arrival time
@@ -40,37 +39,26 @@ void SRTN::execute()
         {
             if (processes[i]->arrivalTime == currentTime)
             {
-                tempReadyQueue.push_back(processes[i]);
+                _readyQueue.push_back(processes[i]);
             }
         }
 
-        std::reverse(tempReadyQueue.begin(), tempReadyQueue.end());
-        for (int i = 0; i < tempReadyQueue.size(); ++i)
+        if (IOreturn != nullptr)
         {
-            _readyQueue.push_back(tempReadyQueue[i]);
+            _readyQueue.push_back(IOreturn);
+            IOreturn = nullptr;
         }
-        tempReadyQueue.clear();
 
-        // special case
-        if (_readyQueue.size() == 2 && _readyQueue.front()->CPUBurst[BURST_INDEX] == _readyQueue.back()->CPUBurst[BURST_INDEX])
+        if (currentProcessOnCPU != nullptr)
         {
-            if ((_readyQueue.front()->backCPU == true && _readyQueue.back()->backCPU == false) || (_readyQueue.front()->backCPU == false && _readyQueue.back()->backCPU == true))
-            {
-                if (_readyQueue.front()->backCPU == true)
-                {
-                    _readyQueue.front()->isPrevent = true;
-                }
-                else
-                {
-                    _readyQueue.back()->isPrevent = true;
-                }
-            }
+            currentProcessOnCPU->startReadyQueue = currentTime;
+            _readyQueue.push_back(currentProcessOnCPU);
         }
+        currentProcessOnCPU = nullptr;
 
         // sort readyQueue
         sortReadyQueue(_readyQueue, currentTime);
 
-        // get process from readyQueue
         if (currentProcessOnCPU == nullptr && _readyQueue.size() != 0)
         {
             currentProcessOnCPU = _readyQueue.front();
@@ -90,17 +78,6 @@ void SRTN::execute()
         // execute on CPU
         if (currentProcessOnCPU != nullptr)
         {
-            if ((!_readyQueue.empty() && currentProcessOnCPU->CPUBurst[BURST_INDEX] >= _readyQueue.front()->CPUBurst[BURST_INDEX]) && (currentProcessOnCPU->isPrevent == false && _readyQueue.front()->isPrevent == false))
-            {
-                currentProcessOnCPU->startReadyQueue = currentTime;
-                tempReadyQueue.push_back(currentProcessOnCPU);
-                currentProcessOnCPU = _readyQueue.front();
-                _readyQueue.erase(_readyQueue.begin());
-
-                // calculate waiting time
-                currentProcessOnCPU->waitingTime += currentTime - currentProcessOnCPU->startReadyQueue;
-            }
-
             _CPU.push_back(currentProcessOnCPU);
             currentProcessOnCPU->CPUBurst.front()--;
 
@@ -146,10 +123,8 @@ void SRTN::execute()
 
                 if (currentProcessOnR->CPUBurst.size() != 0)
                 {
+                    IOreturn = currentProcessOnR;
                     currentProcessOnR->startReadyQueue = currentTime + 1;
-                    currentProcessOnR->backCPU = true;
-
-                    tempReadyQueue.push_back(currentProcessOnR);
                 }
                 else
                 {
