@@ -35,23 +35,23 @@ void SJF::execute()
 
     while (!isTerminated(processes, _readyQueue, _blockedQueue))
     {
-        if (!flagPriority)
-        {
-            for (int i = 0; i < processes.size(); ++i)
-            {
-                if (processes[i]->arrivalTime == currentTime)
-                {
-                    _readyQueue.push_back(processes[i]);
-                }
-            }
 
-            // sort readyQueue 
-            sortReadyQueue(_readyQueue, currentTime);
-        }
-        else
+        for (int i = 0; i < processes.size(); ++i)
         {
-            flagPriority = false;
+            if (processes[i]->arrivalTime == currentTime)
+            {
+                _readyQueue.push_back(processes[i]);
+            }
         }
+        
+        if (IOreturn != nullptr)
+        {
+            _readyQueue.push_back(IOreturn);
+            IOreturn = nullptr;
+        }
+        
+        // sort readyQueue
+        sortReadyQueue(_readyQueue, currentTime);
 
         // get process from readyQueue
         if (currentProcessOnCPU == nullptr && _readyQueue.size() != 0)
@@ -70,7 +70,7 @@ void SJF::execute()
             _blockedQueue.erase(_blockedQueue.begin());
         }
 
-        // execute on CPU 
+        // execute on CPU
         if (currentProcessOnCPU != nullptr)
         {
             _CPU.push_back(currentProcessOnCPU);
@@ -101,8 +101,8 @@ void SJF::execute()
         }
         else
         {
-            // CPU is empty 
-            _CPU.push_back(&temp);
+            // CPU is empty
+            _CPU.push_back(&emptyProcess);
         }
 
         // execute on R
@@ -110,25 +110,15 @@ void SJF::execute()
         {
             _R.push_back(currentProcessOnR);
             currentProcessOnR->resourceBurst.front()--;
-            
+
             if (currentProcessOnR->resourceBurst[BURST_INDEX] == 0)
             {
                 currentProcessOnR->resourceBurst.erase(currentProcessOnR->resourceBurst.begin());
 
                 if (currentProcessOnR->CPUBurst.size() != 0)
                 {
-                    for (int i = 0; i < processes.size(); ++i)
-                    {
-                        if (processes[i]->arrivalTime == (currentTime + 1))
-                        {
-                            _readyQueue.push_back(processes[i]);
-                        }
-                    }
-
-                    _readyQueue.push_back(currentProcessOnR);
+                    IOreturn = currentProcessOnR;
                     currentProcessOnR->startReadyQueue = currentTime + 1;
-
-                    flagPriority = true;
                 }
                 else
                 {
@@ -145,8 +135,8 @@ void SJF::execute()
         }
         else
         {
-            // R is empty 
-            _R.push_back(&temp);
+            // R is empty
+            _R.push_back(&emptyProcess);
         }
 
         ++currentTime;

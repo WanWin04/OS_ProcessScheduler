@@ -9,25 +9,25 @@ void FCFS::execute()
     std::vector<Process *> processes = _processes;
     std::sort(processes.begin(), processes.end(), [](Process *a, Process *b)
               { return a->arrivalTime < b->arrivalTime; });
-    
+
     int currentTime = 0;
     while (!isTerminated(processes, _readyQueue, _blockedQueue))
     {
-        if (flagPriority == false)
+        // add process into ready queue
+        for (int i = 0; i < processes.size(); i++)
         {
-            for (int i = 0; i < processes.size(); i++)
+            if (processes[i]->arrivalTime == currentTime)
             {
-                if (processes[i]->arrivalTime == currentTime)
-                {
-                    _readyQueue.push_back(processes[i]);
-                }
+                _readyQueue.push_back(processes[i]);
             }
         }
-        else
+        if (IOreturn != nullptr)
         {
-            flagPriority = false;
+            _readyQueue.push_back(IOreturn);
+            IOreturn = nullptr;
         }
 
+        // choose process from Ready Queue
         if (currentProcessOnCPU == nullptr && _readyQueue.size() != 0)
         {
             currentProcessOnCPU = _readyQueue.front();
@@ -35,12 +35,14 @@ void FCFS::execute()
             currentProcessOnCPU->waitingTime += currentTime - currentProcessOnCPU->startReadyQueue;
         }
 
+        // choose process from blocked queue
         if (currentProcessOnR == nullptr && _blockedQueue.size() != 0)
         {
             currentProcessOnR = _blockedQueue.front();
             _blockedQueue.erase(_blockedQueue.begin());
         }
 
+        // process on CPU
         if (currentProcessOnCPU != nullptr)
         {
             _CPU.push_back(currentProcessOnCPU);
@@ -69,9 +71,10 @@ void FCFS::execute()
         }
         else
         {
-            _CPU.push_back(&temp);
+            _CPU.push_back(&emptyProcess);
         }
 
+        // process on resource
         if (currentProcessOnR != nullptr)
         {
             _R.push_back(currentProcessOnR);
@@ -82,17 +85,7 @@ void FCFS::execute()
 
                 if (currentProcessOnR->CPUBurst.size() != 0)
                 {
-                    for (int i = 0; i < processes.size(); i++)
-                    {
-                        if (processes[i]->arrivalTime == currentTime + 1)
-                        {
-                            _readyQueue.push_back(processes[i]);
-                        }
-                    }
-                    _readyQueue.push_back(currentProcessOnR);
-
-                    flagPriority = true;
-
+                    IOreturn = currentProcessOnR;
                     currentProcessOnR->startReadyQueue = currentTime + 1;
                 }
                 else
@@ -109,7 +102,7 @@ void FCFS::execute()
         }
         else
         {
-            _R.push_back(&temp);
+            _R.push_back(&emptyProcess);
         }
 
         currentTime++;

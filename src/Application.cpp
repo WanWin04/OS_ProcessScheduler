@@ -7,7 +7,7 @@ void Application::run(char *source, char *destination)
     InputHandler input(source);
 
     int algorithmID = input.algorithmID;
-
+    
     Scheduler *scheduler = nullptr;
 
     switch (algorithmID)

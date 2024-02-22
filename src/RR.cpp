@@ -6,7 +6,7 @@ RR::RR(InputHandler &input) : Scheduler(input.processes, input.timeQuantum) {}
 
 void RR::execute()
 {
-    std::vector<Process *> tempReadyQueue; // use to handle priority
+    std::vector<Process *> tempReadyQueue; // used to handle priority in RR
     std::vector<Process *> processes = _processes;
     std::sort(processes.begin(), processes.end(), [](Process *a, Process *b)
               { return a->arrivalTime < b->arrivalTime; });
@@ -16,11 +16,7 @@ void RR::execute()
 
     while (!isTerminated(processes, _readyQueue, _blockedQueue))
     {
-        // std::cout << "Time " << currentTime << ":\n";
-        // add process to ready queue
-        // if (flagPriority == false)
-        // {
-        //     // std::cout << "Not priority\n";
+        // add process into ready queue
         for (int i = 0; i < processes.size(); i++)
         {
             if (processes[i]->arrivalTime == currentTime)
@@ -28,11 +24,6 @@ void RR::execute()
                 _readyQueue.push_back(processes[i]);
             }
         }
-        // }
-        // else
-        // {
-        //     flagPriority = false;
-        // }
 
         std::reverse(tempReadyQueue.begin(), tempReadyQueue.end());
         for (int i = 0; i < tempReadyQueue.size(); i++)
@@ -41,23 +32,19 @@ void RR::execute()
         }
         tempReadyQueue.clear();
 
-        // chose process from ready queue
+        // choose process from ready queue
         if (currentProcessOnCPU == nullptr && _readyQueue.size() != 0)
         {
-            // std::cout << "Chose process from ready queue\n";
             currentProcessOnCPU = _readyQueue.front();
             _readyQueue.erase(_readyQueue.begin());
             currentProcessOnCPU->waitingTime += currentTime - currentProcessOnCPU->startReadyQueue;
-            // std::cout << "CPU: Process " << currentProcessOnCPU->ID << " is chosen\n";
         }
 
-        // chose process from blocked queue
+        // choose process from blocked queue
         if (currentProcessOnR == nullptr && _blockedQueue.size() != 0)
         {
-            // std::cout << "Chose process from blocked queue\n";
             currentProcessOnR = _blockedQueue.front();
             _blockedQueue.erase(_blockedQueue.begin());
-            // std::cout << "R: Process " << currentProcessOnR->ID << " is chosen\n";
         }
 
         // process on CPU
@@ -87,7 +74,7 @@ void RR::execute()
                 }
                 currentProcessOnCPU = nullptr;
             }
-
+            // handle quantum time
             if (currentProcessOnCPU == nullptr)
             {
                 quantum = timeQuantum;
@@ -102,7 +89,7 @@ void RR::execute()
         }
         else
         {
-            _CPU.push_back(&temp);
+            _CPU.push_back(&emptyProcess);
         }
 
         // process on resource
@@ -133,10 +120,9 @@ void RR::execute()
         }
         else
         {
-            _R.push_back(&temp);
+            _R.push_back(&emptyProcess);
         }
 
         currentTime++;
-        // std::cout << "\n";
     }
 }
