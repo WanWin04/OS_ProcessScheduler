@@ -14,6 +14,7 @@ public:
     int ID;
     int arrivalTime;
 
+    bool isOld; // flag if the process has entered the CPU
     int startReadyQueue; // time index of ready queue
 
     std::vector<int> CPUBurst;      // store CPU bursts

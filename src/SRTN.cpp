@@ -19,8 +19,27 @@ void SRTN::sortReadyQueue(std::vector<Process *> &readyQueue, int currentTime)
             j = j - 1;
         }
 
+        while (j >= 0 && readyQueue[j]->CPUBurst[BURST_INDEX] == key->CPUBurst[BURST_INDEX] && readyQueue[j]->isOld == true)
+        {
+            readyQueue[j + 1] = readyQueue[j];
+            j = j - 1;
+        }
+
         readyQueue[j + 1] = key;
     }
+}
+
+void printReadyQueue(const std::vector<Process *> &readyQueue)
+{
+    std::cout << "Ready Queue Information:\n";
+
+    for (const auto &process : readyQueue)
+    {
+        std::cout << process->ID << " - ";
+        std::cout << process->CPUBurst.front() << std::endl;
+    }
+
+    std::cout << "-----------------------------------------\n";
 }
 
 void SRTN::execute()
@@ -43,22 +62,23 @@ void SRTN::execute()
             }
         }
 
+        if (currentProcessOnCPU != nullptr)
+        {
+            currentProcessOnCPU->startReadyQueue = currentTime;
+            currentProcessOnCPU->isOld = true;
+            _readyQueue.push_back(currentProcessOnCPU);
+        }
+        currentProcessOnCPU = nullptr;
+
         if (IOreturn != nullptr)
         {
             _readyQueue.push_back(IOreturn);
             IOreturn = nullptr;
         }
 
-        if (currentProcessOnCPU != nullptr)
-        {
-            currentProcessOnCPU->startReadyQueue = currentTime;
-            _readyQueue.push_back(currentProcessOnCPU);
-        }
-        currentProcessOnCPU = nullptr;
-
         // sort readyQueue
         sortReadyQueue(_readyQueue, currentTime);
-
+        
         if (currentProcessOnCPU == nullptr && _readyQueue.size() != 0)
         {
             currentProcessOnCPU = _readyQueue.front();
