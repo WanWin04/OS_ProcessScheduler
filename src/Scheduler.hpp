@@ -16,7 +16,7 @@ class Scheduler
 public:
     Process *currentProcessOnCPU;
     Process *currentProcessOnR;
-    bool flagPriority;
+    bool flagPriority; // used to handle priority in FCFS and SJF
 
     Scheduler();
     Scheduler(std::vector<Process *> processes, int timeQuantum);
@@ -28,7 +28,7 @@ public:
     virtual void execute() = 0;
 
 protected:
-    Process temp;
+    Process emptyProcess;
     int timeQuantum;
     std::vector<Process *> _processes;
     std::vector<Process *> _readyQueue;
@@ -36,7 +36,7 @@ protected:
     std::vector<Process *> _CPU;
     std::vector<Process *> _R;
 
-    // delete Delete completed process
+    // delete completed process
     void deleteProcess(std::vector<Process *> &processes, Process *process);
 
     // chech if all process is terminated

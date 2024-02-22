@@ -23,19 +23,6 @@ void SRTN::sortReadyQueue(std::vector<Process *> &readyQueue, int currentTime)
     }
 }
 
-void printReadyQueue(const std::vector<Process *> &readyQueue)
-{
-    std::cout << "Ready Queue Information:\n";
-
-    for (const auto &process : readyQueue)
-    {
-        std::cout << process->ID << " - ";
-        std::cout << process->CPUBurst.front() << std::endl;
-    }
-
-    std::cout << "-----------------------------------------\n";
-}
-
 void SRTN::execute()
 {
     std::vector<Process *> tempReadyQueue;
@@ -46,7 +33,6 @@ void SRTN::execute()
               { return a->arrivalTime < b->arrivalTime; });
 
     int currentTime = 0;
-    bool isPriority = true;
 
     while (!isTerminated(processes, _readyQueue, _blockedQueue))
     {
@@ -145,7 +131,7 @@ void SRTN::execute()
         else
         {
             // CPU is empty
-            _CPU.push_back(&temp);
+            _CPU.push_back(&emptyProcess);
         }
 
         // execute on R
@@ -182,7 +168,7 @@ void SRTN::execute()
         else
         {
             // R is empty
-            _R.push_back(&temp);
+            _R.push_back(&emptyProcess);
         }
 
         ++currentTime;

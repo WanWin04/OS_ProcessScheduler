@@ -102,7 +102,7 @@ void SJF::execute()
         else
         {
             // CPU is empty 
-            _CPU.push_back(&temp);
+            _CPU.push_back(&emptyProcess);
         }
 
         // execute on R
@@ -146,7 +146,7 @@ void SJF::execute()
         else
         {
             // R is empty 
-            _R.push_back(&temp);
+            _R.push_back(&emptyProcess);
         }
 
         ++currentTime;
