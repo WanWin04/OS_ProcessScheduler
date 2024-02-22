@@ -14,8 +14,7 @@ public:
     int ID;
     int arrivalTime;
 
-    bool isPrevent; // flag if can not swap
-    bool backCPU; // flag if process from R to CPU
+    bool isOld; // flag if the process has entered the CPU
     int startReadyQueue; // time index of ready queue
 
     std::vector<int> CPUBurst;      // store CPU bursts

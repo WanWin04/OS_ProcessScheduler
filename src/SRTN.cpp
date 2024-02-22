@@ -19,6 +19,12 @@ void SRTN::sortReadyQueue(std::vector<Process *> &readyQueue, int currentTime)
             j = j - 1;
         }
 
+        while (j >= 0 && readyQueue[j]->CPUBurst[BURST_INDEX] == key->CPUBurst[BURST_INDEX] && readyQueue[j]->isOld == true)
+        {
+            readyQueue[j + 1] = readyQueue[j];
+            j = j - 1;
+        }
+
         readyQueue[j + 1] = key;
     }
 }
@@ -38,7 +44,6 @@ void printReadyQueue(const std::vector<Process *> &readyQueue)
 
 void SRTN::execute()
 {
-    std::vector<Process *> tempReadyQueue;
     std::vector<Process *> processes = _processes;
 
     // sort processes by arrival time
@@ -53,37 +58,27 @@ void SRTN::execute()
         {
             if (processes[i]->arrivalTime == currentTime)
             {
-                tempReadyQueue.push_back(processes[i]);
+                _readyQueue.push_back(processes[i]);
             }
         }
 
-        std::reverse(tempReadyQueue.begin(), tempReadyQueue.end());
-        for (int i = 0; i < tempReadyQueue.size(); ++i)
+        if (currentProcessOnCPU != nullptr)
         {
-            _readyQueue.push_back(tempReadyQueue[i]);
+            currentProcessOnCPU->startReadyQueue = currentTime;
+            currentProcessOnCPU->isOld = true;
+            _readyQueue.push_back(currentProcessOnCPU);
         }
-        tempReadyQueue.clear();
+        currentProcessOnCPU = nullptr;
 
-        // special case
-        if (_readyQueue.size() == 2 && _readyQueue.front()->CPUBurst[BURST_INDEX] == _readyQueue.back()->CPUBurst[BURST_INDEX])
+        if (IOreturn != nullptr)
         {
-            if ((_readyQueue.front()->backCPU == true && _readyQueue.back()->backCPU == false) || (_readyQueue.front()->backCPU == false && _readyQueue.back()->backCPU == true))
-            {
-                if (_readyQueue.front()->backCPU == true)
-                {
-                    _readyQueue.front()->isPrevent = true;
-                }
-                else
-                {
-                    _readyQueue.back()->isPrevent = true;
-                }
-            }
+            _readyQueue.push_back(IOreturn);
+            IOreturn = nullptr;
         }
 
         // sort readyQueue
         sortReadyQueue(_readyQueue, currentTime);
-
-        // get process from readyQueue
+        
         if (currentProcessOnCPU == nullptr && _readyQueue.size() != 0)
         {
             currentProcessOnCPU = _readyQueue.front();
@@ -103,17 +98,6 @@ void SRTN::execute()
         // execute on CPU
         if (currentProcessOnCPU != nullptr)
         {
-            if ((!_readyQueue.empty() && currentProcessOnCPU->CPUBurst[BURST_INDEX] >= _readyQueue.front()->CPUBurst[BURST_INDEX]) && (currentProcessOnCPU->isPrevent == false && _readyQueue.front()->isPrevent == false))
-            {
-                currentProcessOnCPU->startReadyQueue = currentTime;
-                tempReadyQueue.push_back(currentProcessOnCPU);
-                currentProcessOnCPU = _readyQueue.front();
-                _readyQueue.erase(_readyQueue.begin());
-
-                // calculate waiting time
-                currentProcessOnCPU->waitingTime += currentTime - currentProcessOnCPU->startReadyQueue;
-            }
-
             _CPU.push_back(currentProcessOnCPU);
             currentProcessOnCPU->CPUBurst.front()--;
 
@@ -144,7 +128,7 @@ void SRTN::execute()
         else
         {
             // CPU is empty
-            _CPU.push_back(&temp);
+            _CPU.push_back(&emptyProcess);
         }
 
         // execute on R
@@ -159,10 +143,8 @@ void SRTN::execute()
 
                 if (currentProcessOnR->CPUBurst.size() != 0)
                 {
+                    IOreturn = currentProcessOnR;
                     currentProcessOnR->startReadyQueue = currentTime + 1;
-                    currentProcessOnR->backCPU = true;
-
-                    tempReadyQueue.push_back(currentProcessOnR);
                 }
                 else
                 {
@@ -181,7 +163,7 @@ void SRTN::execute()
         else
         {
             // R is empty
-            _R.push_back(&temp);
+            _R.push_back(&emptyProcess);
         }
 
         ++currentTime;
