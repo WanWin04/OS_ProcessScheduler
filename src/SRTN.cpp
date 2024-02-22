@@ -29,19 +29,6 @@ void SRTN::sortReadyQueue(std::vector<Process *> &readyQueue, int currentTime)
     }
 }
 
-void printReadyQueue(const std::vector<Process *> &readyQueue)
-{
-    std::cout << "Ready Queue Information:\n";
-
-    for (const auto &process : readyQueue)
-    {
-        std::cout << process->ID << " - ";
-        std::cout << process->CPUBurst.front() << std::endl;
-    }
-
-    std::cout << "-----------------------------------------\n";
-}
-
 void SRTN::execute()
 {
     std::vector<Process *> processes = _processes;
