@@ -46,7 +46,6 @@ void SRTN::execute()
               { return a->arrivalTime < b->arrivalTime; });
 
     int currentTime = 0;
-    bool isPriority = true;
 
     while (!isTerminated(processes, _readyQueue, _blockedQueue))
     {
