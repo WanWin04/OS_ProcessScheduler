@@ -13,7 +13,7 @@ void SJF::sortReadyQueue(std::vector<Process *> &readyQueue, int currentTime)
         Process *key = readyQueue[i];
         int j = i - 1;
 
-        while (j >= 0 && readyQueue[j]->CPUBurst[CPU_BURST_INDEX] >= key->CPUBurst[CPU_BURST_INDEX])
+        while (j >= 0 && readyQueue[j]->CPUBurst[BURST_INDEX] > key->CPUBurst[BURST_INDEX])
         {
             readyQueue[j + 1] = readyQueue[j];
             j = j - 1;
@@ -76,7 +76,7 @@ void SJF::execute()
             _CPU.push_back(currentProcessOnCPU);
             currentProcessOnCPU->CPUBurst.front()--;
 
-            if (currentProcessOnCPU->CPUBurst[0] == 0)
+            if (currentProcessOnCPU->CPUBurst[BURST_INDEX] == 0)
             {
                 // remove CPU burst done
                 currentProcessOnCPU->CPUBurst.erase(currentProcessOnCPU->CPUBurst.begin());
@@ -110,7 +110,8 @@ void SJF::execute()
         {
             _R.push_back(currentProcessOnR);
             currentProcessOnR->resourceBurst.front()--;
-            if (currentProcessOnR->resourceBurst[0] == 0)
+            
+            if (currentProcessOnR->resourceBurst[BURST_INDEX] == 0)
             {
                 currentProcessOnR->resourceBurst.erase(currentProcessOnR->resourceBurst.begin());
 
