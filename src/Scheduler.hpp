@@ -9,7 +9,7 @@
 
 #include "Process.hpp"
 
-const static int CPU_BURST_INDEX = 0;
+const static int BURST_INDEX = 0;
 
 class Scheduler
 {

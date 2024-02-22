@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/Users/LENOVO/Desktop/Test",
-      "program": "c:/Users/LENOVO/Desktop/Test/build/Debug/outDebug",
+      "cwd": "c:/Users/LENOVO/Desktop/Test/src",
+      "program": "c:/Users/LENOVO/Desktop/Test/src/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

@@ -13,7 +13,7 @@ void SRTN::sortReadyQueue(std::vector<Process *> &readyQueue, int currentTime)
         Process *key = readyQueue[i];
         int j = i - 1;
 
-        while (j >= 0 && readyQueue[j]->CPUBurst[CPU_BURST_INDEX] >= key->CPUBurst[CPU_BURST_INDEX])
+        while (j >= 0 && readyQueue[j]->CPUBurst[BURST_INDEX] > key->CPUBurst[BURST_INDEX])
         {
             readyQueue[j + 1] = readyQueue[j];
             j = j - 1;
@@ -23,8 +23,22 @@ void SRTN::sortReadyQueue(std::vector<Process *> &readyQueue, int currentTime)
     }
 }
 
+void printReadyQueue(const std::vector<Process *> &readyQueue)
+{
+    std::cout << "Ready Queue Information:\n";
+
+    for (const auto &process : readyQueue)
+    {
+        std::cout << process->ID << " - ";
+        std::cout << process->CPUBurst.front() << std::endl;
+    }
+
+    std::cout << "-----------------------------------------\n";
+}
+
 void SRTN::execute()
 {
+    std::vector<Process *> tempReadyQueue;
     std::vector<Process *> processes = _processes;
 
     // sort processes by arrival time
@@ -32,23 +46,39 @@ void SRTN::execute()
               { return a->arrivalTime < b->arrivalTime; });
 
     int currentTime = 0;
+    bool isPriority = true;
 
     while (!isTerminated(processes, _readyQueue, _blockedQueue))
     {
-        if (!flagPriority)
+        for (int i = 0; i < processes.size(); ++i)
         {
-            for (int i = 0; i < processes.size(); ++i)
+            if (processes[i]->arrivalTime == currentTime)
             {
-                if (processes[i]->arrivalTime == currentTime)
-                {
-                    processes[i]->startReadyQueue = currentTime;
-                    _readyQueue.push_back(processes[i]);
-                }
+                tempReadyQueue.push_back(processes[i]);
             }
         }
-        else
+
+        std::reverse(tempReadyQueue.begin(), tempReadyQueue.end());
+        for (int i = 0; i < tempReadyQueue.size(); ++i)
         {
-            flagPriority = false;
+            _readyQueue.push_back(tempReadyQueue[i]);
+        }
+        tempReadyQueue.clear();
+
+        // special case
+        if (_readyQueue.size() == 2 && _readyQueue.front()->CPUBurst[BURST_INDEX] == _readyQueue.back()->CPUBurst[BURST_INDEX])
+        {
+            if ((_readyQueue.front()->backCPU == true && _readyQueue.back()->backCPU == false) || (_readyQueue.front()->backCPU == false && _readyQueue.back()->backCPU == true))
+            {
+                if (_readyQueue.front()->backCPU == true)
+                {
+                    _readyQueue.front()->isPrevent = true;
+                }
+                else
+                {
+                    _readyQueue.back()->isPrevent = true;
+                }
+            }
         }
 
         // sort readyQueue
@@ -74,10 +104,10 @@ void SRTN::execute()
         // execute on CPU
         if (currentProcessOnCPU != nullptr)
         {
-            if (!_readyQueue.empty() && currentProcessOnCPU->CPUBurst[0] >= _readyQueue.front()->CPUBurst[0])
+            if ((!_readyQueue.empty() && currentProcessOnCPU->CPUBurst[BURST_INDEX] >= _readyQueue.front()->CPUBurst[BURST_INDEX]) && (currentProcessOnCPU->isPrevent == false && _readyQueue.front()->isPrevent == false))
             {
                 currentProcessOnCPU->startReadyQueue = currentTime;
-                _readyQueue.push_back(currentProcessOnCPU);
+                tempReadyQueue.push_back(currentProcessOnCPU);
                 currentProcessOnCPU = _readyQueue.front();
                 _readyQueue.erase(_readyQueue.begin());
 
@@ -88,7 +118,7 @@ void SRTN::execute()
             _CPU.push_back(currentProcessOnCPU);
             currentProcessOnCPU->CPUBurst.front()--;
 
-            if (currentProcessOnCPU->CPUBurst[0] == 0)
+            if (currentProcessOnCPU->CPUBurst[BURST_INDEX] == 0)
             {
                 // remove CPU burst done
                 currentProcessOnCPU->CPUBurst.erase(currentProcessOnCPU->CPUBurst.begin());
@@ -124,30 +154,22 @@ void SRTN::execute()
             _R.push_back(currentProcessOnR);
             currentProcessOnR->resourceBurst.front()--;
 
-            if (currentProcessOnR->resourceBurst[0] == 0)
+            if (currentProcessOnR->resourceBurst[BURST_INDEX] == 0)
             {
                 currentProcessOnR->resourceBurst.erase(currentProcessOnR->resourceBurst.begin());
 
                 if (currentProcessOnR->CPUBurst.size() != 0)
                 {
-                    for (int i = 0; i < processes.size(); ++i)
-                    {
-                        if (processes[i]->arrivalTime == (currentTime + 1))
-                        {
-                            // processes[i]->startReadyQueue = currentTime + 1;
-                            _readyQueue.push_back(processes[i]);
-                        }
-                    }
-
                     currentProcessOnR->startReadyQueue = currentTime + 1;
-                    _readyQueue.push_back(currentProcessOnR);
+                    currentProcessOnR->backCPU = true;
 
-                    flagPriority = true;
+                    tempReadyQueue.push_back(currentProcessOnR);
                 }
                 else
                 {
                     // calculate turn around time
                     currentProcessOnR->turnAroundTime = (currentTime + 1) - currentProcessOnR->arrivalTime;
+
                     if (currentProcessOnR->resourceBurst.size() == 0)
                     {
                         // delete process from the list processes
