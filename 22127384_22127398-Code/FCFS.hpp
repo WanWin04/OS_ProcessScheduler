@@ -5,9 +5,6 @@
 
 class FCFS : public Scheduler
 {
-private:
-    
-    
 public:
     FCFS();
     FCFS(InputHandler &input);
