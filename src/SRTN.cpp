@@ -19,7 +19,7 @@ void SRTN::sortReadyQueue(std::vector<Process *> &readyQueue, int currentTime)
             j = j - 1;
         }
 
-        while (j >= 0 && readyQueue[j]->CPUBurst[BURST_INDEX] == key->CPUBurst[BURST_INDEX] && readyQueue[j]->state == true)
+        while (j >= 0 && readyQueue[j]->CPUBurst[BURST_INDEX] == key->CPUBurst[BURST_INDEX] && readyQueue[j]->state)
         {
             readyQueue[j + 1] = readyQueue[j];
             j = j - 1;
@@ -28,6 +28,18 @@ void SRTN::sortReadyQueue(std::vector<Process *> &readyQueue, int currentTime)
         readyQueue[j + 1] = key;
     }
 }
+
+// void printReadyQueue(const std::vector<Process*>& readyQueue) {
+//     std::cout << "Ready Queue Information:\n";
+//     std::cout << "-----------------------------------------\n";
+
+//     for (const auto& process : readyQueue) {
+//         std::cout << "Process ID: " << process->ID << std::endl;
+//         std::cout << "Arrival Time: " << process->arrivalTime << std::endl;
+//         std::cout << "CPU Burst Remaining: " << process->CPUBurst.front() << std::endl;
+//         std::cout << "-----------------------------------------\n";
+//     }
+// }
 
 void SRTN::execute()
 {
