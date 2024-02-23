@@ -1,1 +1,1 @@
-./22127384_22127398 input.txt output.txt
+./22127384_22127398 Input.txt Output.txt

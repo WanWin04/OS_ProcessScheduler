@@ -1,59 +1,23 @@
-#include "SRTN.hpp"
+#include "RR.hpp"
 
-SRTN::SRTN() {}
+RR::RR() : Scheduler() {}
 
-SRTN::SRTN(InputHandler &input) : Scheduler(input.processes, input.timeQuantum) {}
+RR::RR(InputHandler &input) : Scheduler(input.processes, input.timeQuantum) {}
 
-// insertion sort
-void SRTN::sortReadyQueue(std::vector<Process *> &readyQueue, int currentTime)
+void RR::execute()
 {
-    int n = readyQueue.size();
-    for (int i = 1; i < n; ++i)
-    {
-        Process *key = readyQueue[i];
-        int j = i - 1;
-
-        while (j >= 0 && readyQueue[j]->CPUBurst[BURST_INDEX] > key->CPUBurst[BURST_INDEX])
-        {
-            readyQueue[j + 1] = readyQueue[j];
-            j = j - 1;
-        }
-
-        while (j >= 0 && readyQueue[j]->CPUBurst[BURST_INDEX] == key->CPUBurst[BURST_INDEX] && readyQueue[j]->state)
-        {
-            readyQueue[j + 1] = readyQueue[j];
-            j = j - 1;
-        }
-
-        readyQueue[j + 1] = key;
-    }
-}
-
-// void printReadyQueue(const std::vector<Process*>& readyQueue) {
-//     std::cout << "Ready Queue Information:\n";
-//     std::cout << "-----------------------------------------\n";
-
-//     for (const auto& process : readyQueue) {
-//         std::cout << "Process ID: " << process->ID << std::endl;
-//         std::cout << "Arrival Time: " << process->arrivalTime << std::endl;
-//         std::cout << "CPU Burst Remaining: " << process->CPUBurst.front() << std::endl;
-//         std::cout << "-----------------------------------------\n";
-//     }
-// }
-
-void SRTN::execute()
-{
+    std::vector<Process *> tempReadyQueue; // used to handle priority in RR
     std::vector<Process *> processes = _processes;
-
-    // sort processes by arrival time
     std::sort(processes.begin(), processes.end(), [](Process *a, Process *b)
               { return a->arrivalTime < b->arrivalTime; });
 
     int currentTime = 0;
+    int quantum = timeQuantum;
 
     while (!isTerminated(processes, _readyQueue, _blockedQueue))
     {
-        for (int i = 0; i < processes.size(); ++i)
+        // add process into ready queue
+        for (int i = 0; i < processes.size(); i++)
         {
             if (processes[i]->arrivalTime == currentTime)
             {
@@ -61,50 +25,39 @@ void SRTN::execute()
             }
         }
 
-        if (currentProcessOnCPU != nullptr)
+        std::reverse(tempReadyQueue.begin(), tempReadyQueue.end());
+        for (int i = 0; i < tempReadyQueue.size(); i++)
         {
-            currentProcessOnCPU->startReadyQueue = currentTime;
-            currentProcessOnCPU->state = true;
-            _readyQueue.push_back(currentProcessOnCPU);
+            _readyQueue.push_back(tempReadyQueue[i]);
         }
-        currentProcessOnCPU = nullptr;
+        tempReadyQueue.clear();
 
-        if (IOreturn != nullptr)
-        {
-            _readyQueue.push_back(IOreturn);
-            IOreturn = nullptr;
-        }
-
-        // sort readyQueue
-        sortReadyQueue(_readyQueue, currentTime);
-        
+        // choose process from ready queue
         if (currentProcessOnCPU == nullptr && _readyQueue.size() != 0)
         {
             currentProcessOnCPU = _readyQueue.front();
             _readyQueue.erase(_readyQueue.begin());
-
-            // calculate waiting time
             currentProcessOnCPU->waitingTime += currentTime - currentProcessOnCPU->startReadyQueue;
         }
 
-        // get process from blockQueue
+        // choose process from blocked queue
         if (currentProcessOnR == nullptr && _blockedQueue.size() != 0)
         {
             currentProcessOnR = _blockedQueue.front();
             _blockedQueue.erase(_blockedQueue.begin());
         }
 
-        // execute on CPU
+        // process on CPU
         if (currentProcessOnCPU != nullptr)
         {
             _CPU.push_back(currentProcessOnCPU);
             currentProcessOnCPU->CPUBurst.front()--;
+            quantum--;
 
-            if (currentProcessOnCPU->CPUBurst[BURST_INDEX] == 0)
+            if (currentProcessOnCPU->CPUBurst[0] == 0)
             {
                 // remove CPU burst done
                 currentProcessOnCPU->CPUBurst.erase(currentProcessOnCPU->CPUBurst.begin());
-
                 // if process has resource burst
                 if (currentProcessOnCPU->resourceBurst.size() != 0)
                 {
@@ -112,9 +65,7 @@ void SRTN::execute()
                 }
                 else
                 {
-                    // calculate turn around time
-                    currentProcessOnCPU->turnAroundTime = (currentTime + 1) - currentProcessOnCPU->arrivalTime;
-
+                    currentProcessOnCPU->turnAroundTime = currentTime + 1 - currentProcessOnCPU->arrivalTime;
                     if (currentProcessOnCPU->CPUBurst.size() == 0)
                     {
                         // delete process from the list processes
@@ -123,33 +74,41 @@ void SRTN::execute()
                 }
                 currentProcessOnCPU = nullptr;
             }
+            // handle quantum time
+            if (currentProcessOnCPU == nullptr)
+            {
+                quantum = timeQuantum;
+            }
+            if (currentProcessOnCPU != nullptr && quantum == 0)
+            {
+                tempReadyQueue.push_back(currentProcessOnCPU);
+                currentProcessOnCPU->startReadyQueue = currentTime + 1;
+                currentProcessOnCPU = nullptr;
+                quantum = timeQuantum;
+            }
         }
         else
         {
-            // CPU is empty
             _CPU.push_back(&emptyProcess);
         }
 
-        // execute on R
+        // process on resource
         if (currentProcessOnR != nullptr)
         {
             _R.push_back(currentProcessOnR);
             currentProcessOnR->resourceBurst.front()--;
-
-            if (currentProcessOnR->resourceBurst[BURST_INDEX] == 0)
+            if (currentProcessOnR->resourceBurst[0] == 0)
             {
                 currentProcessOnR->resourceBurst.erase(currentProcessOnR->resourceBurst.begin());
 
                 if (currentProcessOnR->CPUBurst.size() != 0)
                 {
-                    IOreturn = currentProcessOnR;
+                    tempReadyQueue.push_back(currentProcessOnR);
                     currentProcessOnR->startReadyQueue = currentTime + 1;
                 }
                 else
                 {
-                    // calculate turn around time
-                    currentProcessOnR->turnAroundTime = (currentTime + 1) - currentProcessOnR->arrivalTime;
-
+                    currentProcessOnR->turnAroundTime = currentTime + 1 - currentProcessOnR->arrivalTime;
                     if (currentProcessOnR->resourceBurst.size() == 0)
                     {
                         // delete process from the list processes
@@ -161,10 +120,9 @@ void SRTN::execute()
         }
         else
         {
-            // R is empty
             _R.push_back(&emptyProcess);
         }
 
-        ++currentTime;
+        currentTime++;
     }
 }
