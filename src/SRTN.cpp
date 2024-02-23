@@ -70,7 +70,7 @@ void SRTN::execute()
         {
             currentProcessOnCPU = _readyQueue.front();
             _readyQueue.erase(_readyQueue.begin());
-
+            currentProcessOnCPU->state = false;
             // calculate waiting time
             currentProcessOnCPU->waitingTime += currentTime - currentProcessOnCPU->startReadyQueue;
         }
