@@ -19,7 +19,7 @@ void SRTN::sortReadyQueue(std::vector<Process *> &readyQueue, int currentTime)
             j = j - 1;
         }
 
-        while (j >= 0 && readyQueue[j]->CPUBurst[BURST_INDEX] == key->CPUBurst[BURST_INDEX] && readyQueue[j]->state == true)
+        while (j >= 0 && readyQueue[j]->CPUBurst[BURST_INDEX] == key->CPUBurst[BURST_INDEX] && readyQueue[j]->state)
         {
             readyQueue[j + 1] = readyQueue[j];
             j = j - 1;
