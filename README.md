@@ -49,7 +49,7 @@ g++ ./src/*.cpp -o MSSV1_MSSV2
 2. Run the project:
 
 ```bash
-./MSSV1_MSSV2.exe input.txt output.txt
+./MSSV1_MSSV2.exe Input.txt Output.txt
 ```
 
 
