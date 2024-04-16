@@ -19,7 +19,7 @@ To get started with this project, follow these steps:
 1. Clone the repository to your local machine:
 
 ```bash
-https://github.com/WanWin04/OS_ProcessSchedulers.git
+https://github.com/WanWin04/OS_ProcessScheduler.git
 ```
 
 To run the project, follow one of these methods:
